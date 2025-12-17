@@ -24,12 +24,10 @@ public class SystemEntityController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<SystemEntityResponse>>> getAll() {
 
-        List<SystemEntity> domainResult = getAllUseCase.getAll();
-
-        List<SystemEntityResponse> response = domainResult.stream()
+        List<SystemEntityResponse> list = getAllUseCase.getAll().stream()
                 .map(mapper::toResponse)
                 .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResponse.success(list));
     }
 }

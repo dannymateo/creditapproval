@@ -1,5 +1,8 @@
 package com.cotrafa.creditapproval.role.infrastructure.adapter.in.web;
 
+import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
+import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.CreateLoanTypeDTO;
+import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.LoanTypeResponse;
 import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.role.domain.port.in.CreateRoleUseCase;
 import com.cotrafa.creditapproval.role.domain.port.in.DeleteRoleUseCase;
@@ -53,23 +56,17 @@ public class RoleController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RoleResponse>> getById(@PathVariable UUID id) {
-        Role getRole = getUseCase.getById(id);
-
-        RoleResponse response = roleMapper.toResponse(getRole);
-
+        Role domain = getUseCase.getById(id);
+        RoleResponse response = roleMapper.toResponse(domain);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(
             @Valid @RequestBody CreateRoleDTO createRoleDTO) {
-
-        Role roleDomain = roleMapper.toDomain(createRoleDTO);
-
-        Role createdRole = createUseCase.create(roleDomain);
-
-        RoleResponse response = roleMapper.toResponse(createdRole);
-
+        Role domainReq = roleMapper.toDomain(createRoleDTO);
+        Role createdDomain = createUseCase.create(domainReq);
+        RoleResponse response = roleMapper.toResponse(createdDomain);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -78,12 +75,9 @@ public class RoleController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateRoleDTO dto
     ) {
-        Role roleDomain = roleMapper.toDomain(dto);
-
-        Role updatedRole = updateUseCase.update(id, roleDomain);
-
-        RoleResponse response = roleMapper.toResponse(updatedRole);
-
+        Role domainReq = roleMapper.toDomain(dto);
+        Role updatedDomain = updateUseCase.update(id, domainReq);
+        RoleResponse response = roleMapper.toResponse(updatedDomain);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

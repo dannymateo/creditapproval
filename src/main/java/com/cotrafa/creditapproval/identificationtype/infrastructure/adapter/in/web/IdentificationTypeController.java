@@ -9,6 +9,7 @@ import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.w
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeResponse;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.UpdateIdentificationTypeDTO;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.mapper.IdentificationTypeMapper;
+import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.LoanTypeResponse;
 import com.cotrafa.creditapproval.shared.infrastructure.mapper.PaginationWebMapper;
 import com.cotrafa.creditapproval.shared.infrastructure.web.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -33,7 +34,7 @@ public class IdentificationTypeController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<IdentificationTypeResponse>>> getAll() {
-        var list = getUseCase.getAll().stream()
+        List<IdentificationTypeResponse> list = getUseCase.getAll().stream()
                 .map(mapper::toResponse)
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(list));
@@ -49,11 +50,9 @@ public class IdentificationTypeController {
     @PostMapping
     public ResponseEntity<ApiResponse<IdentificationTypeResponse>> create(
             @Valid @RequestBody CreateIdentificationTypeDTO dto) {
-
         IdentificationType domainReq = mapper.toDomain(dto);
         IdentificationType createdDomain = createUseCase.create(domainReq);
         IdentificationTypeResponse response = mapper.toResponse(createdDomain);
-
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -65,7 +64,6 @@ public class IdentificationTypeController {
         IdentificationType domainReq = mapper.toDomain(dto);
         IdentificationType updatedDomain = updateUseCase.update(id, domainReq);
         IdentificationTypeResponse response = mapper.toResponse(updatedDomain);
-
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

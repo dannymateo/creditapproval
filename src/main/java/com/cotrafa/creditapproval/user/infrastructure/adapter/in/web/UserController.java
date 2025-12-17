@@ -1,5 +1,8 @@
 package com.cotrafa.creditapproval.user.infrastructure.adapter.in.web;
 
+import com.cotrafa.creditapproval.role.domain.model.Role;
+import com.cotrafa.creditapproval.role.infrastructure.adapter.in.web.dto.CreateRoleDTO;
+import com.cotrafa.creditapproval.role.infrastructure.adapter.in.web.dto.RoleResponse;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
 import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import com.cotrafa.creditapproval.shared.infrastructure.mapper.PaginationWebMapper;
@@ -52,22 +55,16 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> getById(@PathVariable UUID id) {
-        User getUser = getUseCase.getById(id);
-
-        UserResponse response = userMapper.toResponse(getUser);
-
+        User domain = getUseCase.getById(id);
+        UserResponse response = userMapper.toResponse(domain);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> create(@Valid @RequestBody CreateUserDTO dto) {
-
-        User userDomain = userMapper.toDomain(dto);
-
-        User createdUser = createUseCase.create(userDomain);
-
-        UserResponse response = userMapper.toResponse(createdUser);
-
+        User domainReq = userMapper.toDomain(dto);
+        User createdDomain = createUseCase.create(domainReq);
+        UserResponse response = userMapper.toResponse(createdDomain);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -76,12 +73,9 @@ public class UserController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserDTO dto
     ) {
-        User userDomain = userMapper.toDomain(dto);
-
-        User updatedUser = updateUseCase.update(id, userDomain);
-
-        UserResponse response = userMapper.toResponse(updatedUser);
-
+        User domainReq = userMapper.toDomain(dto);
+        User updatedDomain = updateUseCase.update(id, domainReq);
+        UserResponse response = userMapper.toResponse(updatedDomain);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
