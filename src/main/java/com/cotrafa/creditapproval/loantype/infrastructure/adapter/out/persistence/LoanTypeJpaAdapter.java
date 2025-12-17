@@ -18,7 +18,9 @@ public class LoanTypeJpaAdapter implements LoanTypeRepository {
 
     @Override
     public LoanType save(LoanType loanType) {
-        return mapper.toDomain(jpaRepository.save(mapper.toEntity(loanType)));
+        LoanTypeJpaEntity entity = mapper.toEntity(loanType);
+        LoanTypeJpaEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
     }
 
     @Override

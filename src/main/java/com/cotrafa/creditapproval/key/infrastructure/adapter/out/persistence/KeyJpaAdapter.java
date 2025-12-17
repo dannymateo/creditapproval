@@ -18,7 +18,8 @@ public class KeyJpaAdapter implements KeyRepositoryPort {
     @Override
     public Key save(Key key) {
         KeyJpaEntity entity = mapper.toEntity(key);
-        return mapper.toDomain(jpaRepository.save(entity));
+        KeyJpaEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
     }
 
     @Override

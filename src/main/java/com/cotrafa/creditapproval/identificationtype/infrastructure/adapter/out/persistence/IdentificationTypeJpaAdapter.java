@@ -2,6 +2,7 @@ package com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.out
 
 import com.cotrafa.creditapproval.identificationtype.domain.model.IdentificationType;
 import com.cotrafa.creditapproval.identificationtype.domain.port.out.IdentificationTypeRepository;
+import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,9 @@ public class IdentificationTypeJpaAdapter implements IdentificationTypeRepositor
 
     @Override
     public IdentificationType save(IdentificationType idType) {
-        return mapper.toDomain(jpaRepository.save(mapper.toEntity(idType)));
+        IdentificationTypeJpaEntity entity = mapper.toEntity(idType);
+        IdentificationTypeJpaEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
     }
 
     @Override

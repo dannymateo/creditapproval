@@ -23,7 +23,7 @@ public class KeyTypeJpaAdapter implements KeyTypeRepositoryPort {
     @Override
     public KeyType save(KeyType keyType) {
         KeyTypeJpaEntity entity = mapper.toEntity(keyType);
-        KeyTypeJpaEntity saved = jpaRepository.save(entity);
-        return mapper.toDomain(saved);
+        KeyTypeJpaEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
     }
 }
