@@ -118,7 +118,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (role != null) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
-            System.out.println(role.getPermissions().stream().toList());
 
             if (role.getPermissions() != null) {
                 for (Permission perm : role.getPermissions()) {

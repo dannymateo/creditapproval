@@ -62,16 +62,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/role/**").hasAuthority("ROLE_DELETE")
 
                         // Identification type module
-                        .requestMatchers(HttpMethod.GET, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_DELETE")
+                        .requestMatchers(HttpMethod.GET, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_DELETE")
 
                         // Loan type module
-                        .requestMatchers(HttpMethod.GET, "/api/loan-type\"/**").hasAuthority("LOAN_TYPE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/loan-type\"/**").hasAuthority("LOAN_TYPE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/loan-type\"/**").hasAuthority("LOAN_TYPE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/loan-type\"/**").hasAuthority("LOAN_TYPE_DELETE")
+                        .requestMatchers(HttpMethod.GET, "/api/loan-type/**").hasAuthority("LOAN_TYPE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/loan-type/**").hasAuthority("LOAN_TYPE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/loan-type/**").hasAuthority("LOAN_TYPE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/loan-type/**").hasAuthority("LOAN_TYPE_DELETE")
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()

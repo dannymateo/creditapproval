@@ -10,12 +10,11 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", config = CentralMapperConfig.class)
 public interface LoanTypeMapper {
+
     @Mapping(target = "id", ignore = true)
     LoanType toDomain(CreateLoanTypeDTO dto);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(source = "name", target = "name")
-    @Mapping(source = "active", target = "active")
     LoanType toDomain(UpdateLoanTypeDTO dto);
 
     LoanTypeResponse toResponse(LoanType domain);
