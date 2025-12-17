@@ -61,6 +61,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/role/**").hasAuthority("ROLE_UPDATE")
                         .requestMatchers(HttpMethod.DELETE, "/api/role/**").hasAuthority("ROLE_DELETE")
 
+                        // Identification type module
+                        .requestMatchers(HttpMethod.GET, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/identification-type\"/**").hasAuthority("IDENTIFICATION_TYPE_DELETE")
+
                         // Everything else requires authentication
                         .anyRequest().authenticated()
                 )

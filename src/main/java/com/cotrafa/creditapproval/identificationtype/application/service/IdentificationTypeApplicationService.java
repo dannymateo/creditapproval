@@ -29,7 +29,7 @@ public class IdentificationTypeApplicationService implements
     @Transactional
     public IdentificationType create(IdentificationType identificationType) {
         if (repository.existsByName(identificationType.getName())) {
-            throw new RuntimeException("Identification type name already exists");
+            throw new DatabaseConflictException("Identification type name already exists");
         }
         identificationType.setActive(true);
         return repository.save(identificationType);
@@ -37,22 +37,22 @@ public class IdentificationTypeApplicationService implements
 
     @Override
     @Transactional
-    public IdentificationType update(UUID id, IdentificationType identificationType) {
-        IdentificationType existingIdentificationType = repository.findById(id)
+    public IdentificationType update(UUID id, IdentificationType domainRequest) {
+        IdentificationType existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Identification type not found"));
 
-        if (identificationType.getName() != null &&
-                !existingIdentificationType.getName().equalsIgnoreCase(identificationType.getName())) {
+        if (domainRequest.getName() != null && !domainRequest.getName().isBlank() &&
+                !existing.getName().equalsIgnoreCase(domainRequest.getName())) {
 
-            if (repository.existsByName(identificationType.getName())) {
-                throw new DatabaseConflictException("identification type already exists");
+            if (repository.existsByName(domainRequest.getName())) {
+                throw new DatabaseConflictException("Identification type name already exists");
             }
-            existingIdentificationType.setName(identificationType.getName());
+            existing.setName(domainRequest.getName());
         }
 
-        existingIdentificationType.setName(identificationType.getName());
-        existingIdentificationType.setActive(identificationType.isActive());
-        return repository.save(existingIdentificationType);
+        existing.setActive(domainRequest.isActive());
+
+        return repository.save(existing);
     }
 
     @Override
