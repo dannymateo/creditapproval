@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/restore-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/change-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh-token").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/customer").permitAll()
 
                         // Protected
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()

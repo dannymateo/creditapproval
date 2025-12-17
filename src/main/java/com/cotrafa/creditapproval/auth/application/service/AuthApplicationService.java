@@ -8,6 +8,7 @@ import com.cotrafa.creditapproval.key.domain.port.in.GenerateKeyUseCase;
 import com.cotrafa.creditapproval.key.domain.port.in.ValidateKeyUseCase;
 import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.role.domain.port.out.RoleRepositoryPort;
+import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.BadRequestException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.InvalidCredentialsException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.ResourceNotFoundException;
 import com.cotrafa.creditapproval.user.domain.model.User;
@@ -50,6 +51,8 @@ public class AuthApplicationService implements LoginUseCase, RefreshTokenUseCase
         User user = userRepository.findByEmail(credentials.email())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
+        validateRoleActive(user.getRoleId());
+
         checkLockStatus(user);
 
         if (!passwordEncoder.matches(credentials.password(), user.getPassword())) {
@@ -80,6 +83,8 @@ public class AuthApplicationService implements LoginUseCase, RefreshTokenUseCase
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        validateRoleActive(user.getRoleId());
 
         if (user.getSessionId() == null || !user.getSessionId().equals(sessionId)) {
             throw new InvalidCredentialsException("Session revoked");
@@ -162,5 +167,14 @@ public class AuthApplicationService implements LoginUseCase, RefreshTokenUseCase
         return roleRepositoryPort.findById(roleId)
                 .map(Role::getName)
                 .orElse(null);
+    }
+
+    private void validateRoleActive(UUID roleId) {
+        Role role = roleRepositoryPort.findById(roleId)
+                .orElseThrow(() -> new InvalidCredentialsException("Assigned role not found"));
+
+        if (!role.getActive()) {
+            throw new InvalidCredentialsException("The assigned role '" + role.getName() + "' is currently inactive.");
+        }
     }
 }

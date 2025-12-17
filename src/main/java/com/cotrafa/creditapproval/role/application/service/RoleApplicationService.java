@@ -7,8 +7,10 @@ import com.cotrafa.creditapproval.role.domain.port.in.DeleteRoleUseCase;
 import com.cotrafa.creditapproval.role.domain.port.in.GetRoleUseCase;
 import com.cotrafa.creditapproval.role.domain.port.in.UpdateRoleUseCase;
 import com.cotrafa.creditapproval.role.domain.port.out.RoleRepositoryPort;
+import com.cotrafa.creditapproval.shared.domain.constants.RoleConstants;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
 import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
+import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.BadRequestException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.DatabaseConflictException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.ResourceNotFoundException;
 import com.cotrafa.creditapproval.systementity.domain.port.out.SystemEntityRepositoryPort;
@@ -44,6 +46,12 @@ public class RoleApplicationService implements CreateRoleUseCase, UpdateRoleUseC
     public Role update(UUID id, Role role) {
         Role existingRole = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        if (existingRole.getName().equalsIgnoreCase(RoleConstants.CUSTOMER)) {
+            if (!existingRole.getName().equalsIgnoreCase(role.getName())) {
+                throw new BadRequestException("The role name 'CUSTOMER' is required by the system and cannot be changed");
+            }
+        }
 
         if (role.getName() != null &&
                 !existingRole.getName().equalsIgnoreCase(role.getName())) {
@@ -81,11 +89,15 @@ public class RoleApplicationService implements CreateRoleUseCase, UpdateRoleUseC
     @Override
     @Transactional
     public void delete(UUID id) {
-        roleRepository.findById(id)
+        Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         if (roleRepository.isRoleAssignedToUsers(id)) {
             throw new DatabaseConflictException("Cannot delete role. It is assigned to active users.");
+        }
+
+        if (role.getName().equalsIgnoreCase(RoleConstants.CUSTOMER)) {
+            throw new BadRequestException("The role name 'CUSTOMER' is required by the system and cannot be deleted");
         }
 
         roleRepository.deleteById(id);

@@ -1,7 +1,10 @@
 package com.cotrafa.creditapproval.user.application.service;
 
+import com.cotrafa.creditapproval.role.domain.model.Role;
+import com.cotrafa.creditapproval.shared.domain.constants.RoleConstants;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
 import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
+import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.BadRequestException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.DatabaseConflictException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.ResourceNotFoundException;
 import com.cotrafa.creditapproval.user.domain.model.User;
@@ -37,6 +40,8 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
             throw new DatabaseConflictException("Email already exists: " + user.getEmail());
         }
 
+        validateRole(user.getRoleId());
+
         roleRepositoryPort.findById(user.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + user.getRoleId()));
 
@@ -60,7 +65,6 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
 
         if (user.getEmail() != null &&
                 !existingUser.getEmail().equalsIgnoreCase(user.getEmail())) {
-
             if (userRepositoryPort.existsByEmail(user.getEmail())) {
                 throw new DatabaseConflictException("Email already exists");
             }
@@ -69,9 +73,16 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
 
         if (user.getActive() != null) existingUser.setActive(user.getActive());
 
-        if (user.getRoleId() != null) {
-            roleRepositoryPort.findById(user.getRoleId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + user.getRoleId()));
+        if (user.getRoleId() != null && !existingUser.getRoleId().equals(user.getRoleId())) {
+
+            Role currentRole = roleRepositoryPort.findById(existingUser.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Current role not found"));
+
+            if (currentRole.getName().equalsIgnoreCase(RoleConstants.CUSTOMER)) {
+                throw new BadRequestException("User with role 'CUSTOMER' cannot be reassigned to a different role.");
+            }
+
+            validateRole(user.getRoleId());
 
             existingUser.setRoleId(user.getRoleId());
         }
@@ -98,6 +109,13 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
         userRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        Role role = roleRepositoryPort.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        if (role.getName().equalsIgnoreCase(RoleConstants.CUSTOMER)) {
+            throw new BadRequestException("The user cannot be removed because their role is 'CUSTOMER'");
+        }
+
         userRepositoryPort.deleteById(id);
     }
 
@@ -116,5 +134,14 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
 
         userRepositoryPort.save(user);
         notificationPort.sendPasswordResetEmail(user, newRawPassword);
+    }
+
+    private void validateRole(UUID roleId) {
+        Role role = roleRepositoryPort.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + roleId));
+
+        if (!role.getActive()) {
+            throw new BadRequestException("The assigned role '" + role.getName() + "' is currently inactive.");
+        }
     }
 }

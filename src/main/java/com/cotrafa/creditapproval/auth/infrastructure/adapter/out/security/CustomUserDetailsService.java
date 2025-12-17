@@ -37,9 +37,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Role role = fetchRole(user.getRoleId());
 
+        boolean isRoleActive = (role != null && role.getActive());
+
         Map<UUID, String> entityIdToNameMap = fetchSystemEntityNames();
 
-        return buildSpringUser(user, role, entityIdToNameMap);
+        return buildSpringUser(user, role, isRoleActive, entityIdToNameMap);
     }
 
     private Role fetchRole(UUID roleId) {
@@ -56,10 +58,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 ));
     }
 
-    private UserDetails buildSpringUser(User user, Role role, Map<UUID, String> entityIdToNameMap) {
+    private UserDetails buildSpringUser(User user, Role role, boolean isRoleActive, Map<UUID, String> entityIdToNameMap) {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        if (role != null) {
+        if (role != null && isRoleActive) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
 
             if (role.getPermissions() != null) {
@@ -86,7 +88,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .authorities(authorities)
-                .disabled(!user.isActive())
+                .disabled(!user.isActive() || isRoleActive)
                 .accountLocked(user.isLocked())
                 .build();
     }

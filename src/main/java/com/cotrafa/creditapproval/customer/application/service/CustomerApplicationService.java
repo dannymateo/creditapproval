@@ -3,8 +3,11 @@ package com.cotrafa.creditapproval.customer.application.service;
 import com.cotrafa.creditapproval.customer.domain.model.Customer;
 import com.cotrafa.creditapproval.customer.domain.port.in.CreateCustomerUseCase;
 import com.cotrafa.creditapproval.customer.domain.port.out.CustomerRepository;
+import com.cotrafa.creditapproval.identificationtype.domain.model.IdentificationType;
 import com.cotrafa.creditapproval.identificationtype.domain.port.in.GetIdentificationTypeUseCase;
 import com.cotrafa.creditapproval.role.domain.port.out.RoleRepositoryPort;
+import com.cotrafa.creditapproval.shared.domain.constants.RoleConstants;
+import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.BadRequestException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.DatabaseConflictException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.ResourceNotFoundException;
 import com.cotrafa.creditapproval.user.domain.model.User;
@@ -30,13 +33,16 @@ public class CustomerApplicationService implements CreateCustomerUseCase {
     public Customer create(Customer customer) {
         validateSalary(customer.getBaseSalary());
 
-        getIdentificationTypeUseCase.getById(customer.getIdentificationTypeId());
+        IdentificationType idType = getIdentificationTypeUseCase.getById(customer.getIdentificationTypeId());
+        if (!idType.isActive()) {
+            throw new BadRequestException("The assigned identification type '" + idType.getName() + "' is currently inactive.");
+        }
 
         if (customerRepository.existsByIdentification(customer.getIdentificationTypeId(), customer.getIdentificationNumber())) {
             throw new DatabaseConflictException("Identification number already exists for this type");
         }
 
-        UUID customerRoleId = roleRepositoryPort.findByName("CUSTOMER")
+        UUID customerRoleId = roleRepositoryPort.findByName(RoleConstants.CUSTOMER)
                 .orElseThrow(() -> new ResourceNotFoundException("Role CUSTOMER not found"))
                 .getId();
 
@@ -49,9 +55,13 @@ public class CustomerApplicationService implements CreateCustomerUseCase {
 
         customer.setUserId(savedUser.getId());
 
-        return customerRepository.save(customer);
-    }
+        Customer savedCustomer = customerRepository.save(customer);
 
+        // We reassign the email to the object we are going to return
+        savedCustomer.setEmail(savedUser.getEmail());
+
+        return savedCustomer;
+    }
     private void validateSalary(BigDecimal salary) {
         if (salary == null || salary.compareTo(BigDecimal.ZERO) < 0 ||
                 salary.compareTo(new BigDecimal("15000000")) > 0) {
