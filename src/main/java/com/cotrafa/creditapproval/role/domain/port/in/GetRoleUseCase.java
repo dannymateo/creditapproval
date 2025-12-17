@@ -9,5 +9,4 @@ import java.util.UUID;
 public interface GetRoleUseCase {
     Role getById(UUID id);
     PaginatedResult<Role> getAll(PaginationCriteria criteria);
-
 }
