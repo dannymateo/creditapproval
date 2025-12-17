@@ -1,7 +1,5 @@
 package com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web;
 
-import com.cotrafa.creditapproval.identificationtype.domain.model.IdentificationType;
-import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeResponse;
 import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
 import com.cotrafa.creditapproval.loantype.domain.port.in.CreateLoanTypeUseCase;
 import com.cotrafa.creditapproval.loantype.domain.port.in.DeleteLoanTypeUseCase;

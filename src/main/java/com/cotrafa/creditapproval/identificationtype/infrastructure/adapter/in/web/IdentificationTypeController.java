@@ -9,7 +9,6 @@ import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.w
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeResponse;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.UpdateIdentificationTypeDTO;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.mapper.IdentificationTypeMapper;
-import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.LoanTypeResponse;
 import com.cotrafa.creditapproval.shared.infrastructure.mapper.PaginationWebMapper;
 import com.cotrafa.creditapproval.shared.infrastructure.web.dto.ApiResponse;
 import jakarta.validation.Valid;

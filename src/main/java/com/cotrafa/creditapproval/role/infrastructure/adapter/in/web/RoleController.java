@@ -1,8 +1,5 @@
 package com.cotrafa.creditapproval.role.infrastructure.adapter.in.web;
 
-import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
-import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.CreateLoanTypeDTO;
-import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.LoanTypeResponse;
 import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.role.domain.port.in.CreateRoleUseCase;
 import com.cotrafa.creditapproval.role.domain.port.in.DeleteRoleUseCase;
