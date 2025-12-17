@@ -22,12 +22,15 @@ public class IdentificationTypeJpaAdapter implements IdentificationTypeRepositor
 
     @Override
     public Optional<IdentificationType> findById(UUID id) {
-        return jpaRepository.findById(id).map(mapper::toDomain);
+        return jpaRepository.findById(id)
+                .map(mapper::toDomain);
     }
 
     @Override
     public List<IdentificationType> findAll() {
-        return jpaRepository.findAll().stream().map(mapper::toDomain).toList();
+        return jpaRepository.findAll().stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -36,5 +39,7 @@ public class IdentificationTypeJpaAdapter implements IdentificationTypeRepositor
     }
 
     @Override
-    public void deleteById(UUID id) { jpaRepository.deleteById(id); }
+    public void deleteById(UUID id) {
+        jpaRepository.deleteById(id);
+    }
 }
