@@ -7,7 +7,5 @@ import java.util.UUID;
 public interface CustomerRepository {
     Customer save(Customer customer);
     Optional<Customer> findById(UUID id);
-    Optional<Customer> findByEmail(String email);
     boolean existsByIdentification(UUID typeId, String number);
-    boolean existsByEmail(String email);
 }

@@ -10,6 +10,7 @@ import java.util.UUID;
 public interface RoleRepositoryPort {
     Role save(Role role);
     Optional<Role> findById(UUID id);
+    Optional<Role> findByName(String name);
     boolean existsByName(String name);
     void deleteById(UUID id);
     boolean isRoleAssignedToUsers(UUID roleId);

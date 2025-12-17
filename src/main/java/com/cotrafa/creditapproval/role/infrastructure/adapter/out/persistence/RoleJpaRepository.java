@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface RoleJpaRepository extends JpaRepository<RoleJpaEntity, UUID> {
+    Optional<RoleJpaEntity> findByNameContainingIgnoreCase(String name);
     boolean existsByNameIgnoreCase(String name);
     @Query("SELECT COUNT(u) > 0 FROM UserJpaEntity u WHERE u.role.id = :roleId")
     boolean isRoleAssignedToUsers(@Param("roleId") UUID roleId);

@@ -41,6 +41,10 @@ public class RoleJpaAdapter implements RoleRepositoryPort {
         return jpaRepository.findByIdWithPermissions(id).map(mapper::toDomain);
     }
 
+    public Optional<Role> findByName(String name) {
+        return jpaRepository.findByNameContainingIgnoreCase(name).map(mapper::toDomain);
+    }
+
     @Override
     public boolean existsByName(String name) {
         return jpaRepository.existsByNameIgnoreCase(name);
