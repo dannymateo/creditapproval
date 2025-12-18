@@ -46,26 +46,29 @@ public class CustomerApplicationService implements CreateCustomerUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Role CUSTOMER not found"))
                 .getId();
 
-        User userToCreate = new User();
-        userToCreate.setEmail(customer.getEmail());
-        userToCreate.setRoleId(customerRoleId);
-        userToCreate.setActive(true);
+        User userToCreate = User.builder()
+                .email(customer.getEmail())
+                .roleId(customerRoleId)
+                .active(true)
+                .build();
 
         User savedUser = createUserUseCase.create(userToCreate);
 
-        customer.setUserId(savedUser.getId());
+        Customer customerToSave = customer.toBuilder()
+                .userId(savedUser.getId())
+                .build();
 
-        Customer savedCustomer = customerRepository.save(customer);
+        Customer savedCustomer = customerRepository.save(customerToSave);
 
-        // We reassign the email to the object we are going to return
-        savedCustomer.setEmail(savedUser.getEmail());
-
-        return savedCustomer;
+        return savedCustomer.toBuilder()
+                .email(savedUser.getEmail())
+                .build();
     }
+
     private void validateSalary(BigDecimal salary) {
         if (salary == null || salary.compareTo(BigDecimal.ZERO) < 0 ||
                 salary.compareTo(new BigDecimal("15000000")) > 0) {
-            throw new IllegalArgumentException("Salary must be between 0 and 15,000,000");
+            throw new BadRequestException("Salary must be between 0 and 15,000,000");
         }
     }
 }

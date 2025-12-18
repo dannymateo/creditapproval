@@ -31,8 +31,12 @@ public class IdentificationTypeApplicationService implements
         if (repository.existsByName(identificationType.getName())) {
             throw new DatabaseConflictException("Identification type name already exists");
         }
-        identificationType.setActive(true);
-        return repository.save(identificationType);
+
+        IdentificationType typeToSave = identificationType.toBuilder()
+                .active(true)
+                .build();
+
+        return repository.save(typeToSave);
     }
 
     @Override
@@ -41,18 +45,20 @@ public class IdentificationTypeApplicationService implements
         IdentificationType existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Identification type not found"));
 
+        IdentificationType.IdentificationTypeBuilder builder = existing.toBuilder();
+
         if (domainRequest.getName() != null && !domainRequest.getName().isBlank() &&
                 !existing.getName().equalsIgnoreCase(domainRequest.getName())) {
 
             if (repository.existsByName(domainRequest.getName())) {
                 throw new DatabaseConflictException("Identification type name already exists");
             }
-            existing.setName(domainRequest.getName());
+            builder.name(domainRequest.getName());
         }
 
-        existing.setActive(domainRequest.isActive());
+        builder.active(domainRequest.isActive());
 
-        return repository.save(existing);
+        return repository.save(builder.build());
     }
 
     @Override

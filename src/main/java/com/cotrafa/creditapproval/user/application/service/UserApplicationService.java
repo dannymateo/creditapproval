@@ -13,7 +13,6 @@ import com.cotrafa.creditapproval.user.domain.port.out.NotificationPort;
 import com.cotrafa.creditapproval.user.domain.port.out.PasswordEncoderPort;
 import com.cotrafa.creditapproval.user.domain.port.out.UserRepositoryPort;
 import com.cotrafa.creditapproval.role.domain.port.out.RoleRepositoryPort;
-
 import com.cotrafa.creditapproval.shared.infrastructure.util.PasswordGeneratorUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -42,16 +41,17 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
 
         validateRole(user.getRoleId());
 
-        roleRepositoryPort.findById(user.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + user.getRoleId()));
-
         String rawPassword = passwordGeneratorUtil.generateStrongPassword();
 
-        user.setLastPasswordChange(Instant.now());
+        User userToSave = user.toBuilder()
+                .lastPasswordChange(Instant.now())
+                .password(passwordEncoderPort.encode(rawPassword))
+                .active(true)
+                .loginAttempts(0)
+                .logged(false)
+                .build();
 
-        user.setPassword(passwordEncoderPort.encode(rawPassword));
-
-        User savedUser = userRepositoryPort.save(user);
+        User savedUser = userRepositoryPort.save(userToSave);
         notificationPort.sendWelcomeEmail(savedUser, rawPassword);
 
         return savedUser;
@@ -59,22 +59,24 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
 
     @Override
     @Transactional
-    public User update(UUID id, User user) {
+    public User update(UUID id, User userRequest) {
         User existingUser = userRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (user.getEmail() != null &&
-                !existingUser.getEmail().equalsIgnoreCase(user.getEmail())) {
-            if (userRepositoryPort.existsByEmail(user.getEmail())) {
+        User.UserBuilder builder = existingUser.toBuilder();
+
+        if (userRequest.getEmail() != null && !existingUser.getEmail().equalsIgnoreCase(userRequest.getEmail())) {
+            if (userRepositoryPort.existsByEmail(userRequest.getEmail())) {
                 throw new DatabaseConflictException("Email already exists");
             }
-            existingUser.setEmail(user.getEmail());
+            builder.email(userRequest.getEmail());
         }
 
-        if (user.getActive() != null) existingUser.setActive(user.getActive());
+        if (userRequest.getActive() != null) {
+            builder.active(userRequest.getActive());
+        }
 
-        if (user.getRoleId() != null && !existingUser.getRoleId().equals(user.getRoleId())) {
-
+        if (userRequest.getRoleId() != null && !existingUser.getRoleId().equals(userRequest.getRoleId())) {
             Role currentRole = roleRepositoryPort.findById(existingUser.getRoleId())
                     .orElseThrow(() -> new ResourceNotFoundException("Current role not found"));
 
@@ -82,12 +84,32 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
                 throw new BadRequestException("User with role 'CUSTOMER' cannot be reassigned to a different role.");
             }
 
-            validateRole(user.getRoleId());
-
-            existingUser.setRoleId(user.getRoleId());
+            validateRole(userRequest.getRoleId());
+            builder.roleId(userRequest.getRoleId());
         }
 
-        return userRepositoryPort.save(existingUser);
+        return userRepositoryPort.save(builder.build());
+    }
+
+    @Override
+    @Transactional
+    public void resetPasswordByAdmin(UUID userId) {
+        User user = userRepositoryPort.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String newRawPassword = passwordGeneratorUtil.generateStrongPassword();
+
+        User updatedUser = user.toBuilder()
+                .password(passwordEncoderPort.encode(newRawPassword))
+                .loginAttempts(0)
+                .unlockDate(null)
+                .sessionId(null)
+                .logged(false)
+                .lastPasswordChange(Instant.now())
+                .build();
+
+        userRepositoryPort.save(updatedUser);
+        notificationPort.sendPasswordResetEmail(updatedUser, newRawPassword);
     }
 
     @Override
@@ -106,10 +128,10 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
     @Override
     @Transactional
     public void delete(UUID id) {
-        userRepositoryPort.findById(id)
+        User user = userRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Role role = roleRepositoryPort.findById(id)
+        Role role = roleRepositoryPort.findById(user.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         if (role.getName().equalsIgnoreCase(RoleConstants.CUSTOMER)) {
@@ -117,23 +139,6 @@ public class UserApplicationService implements CreateUserUseCase, UpdateUserUseC
         }
 
         userRepositoryPort.deleteById(id);
-    }
-
-    @Override
-    @Transactional
-    public void resetPasswordByAdmin(UUID userId) {
-        User user = userRepositoryPort.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        String newRawPassword = passwordGeneratorUtil.generateStrongPassword();
-
-        user.setPassword(passwordEncoderPort.encode(newRawPassword));
-        user.resetLoginAttempts();
-        user.setSessionId(null);
-        user.setLogged(false);
-
-        userRepositoryPort.save(user);
-        notificationPort.sendPasswordResetEmail(user, newRawPassword);
     }
 
     private void validateRole(UUID roleId) {

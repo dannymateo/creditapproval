@@ -54,32 +54,34 @@ public class KeyApplicationService implements GenerateKeyUseCase, ValidateKeyUse
         KeyType keyType = keyTypeUseCase.findOrCreate(typeName);
 
         keyRepositoryPort.findActiveKey(userId, typeName).ifPresent(k -> {
-            k.setActive(false);
-            keyRepositoryPort.save(k);
+            Key deactivatedKey = k.toBuilder().active(false).build();
+            keyRepositoryPort.save(deactivatedKey);
         });
 
-        String rawKey;
+        String rawKey = generateRawKeyValue(isNumeric, length);
+
+        Key key = Key.builder()
+                .userId(user.getId())
+                .keyTypeId(keyType.getId())
+                .key(passwordEncoder.encode(rawKey))
+                .active(true)
+                .attempts(0)
+                .expiredAt(Instant.now().plus(duration, unit))
+                .build();
+
+        keyRepositoryPort.save(key);
+        return rawKey;
+    }
+
+    private String generateRawKeyValue(boolean isNumeric, int length) {
         if (isNumeric) {
             int min = (int) Math.pow(10, length - 1);
             int max = (int) Math.pow(10, length) - 1;
-            rawKey = String.valueOf(min + secureRandom.nextInt(max - min));
-        } else {
-            byte[] randomBytes = new byte[length];
-            secureRandom.nextBytes(randomBytes);
-            rawKey = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+            return String.valueOf(min + secureRandom.nextInt(max - min));
         }
-
-        Key key = new Key();
-        key.setUserId(user.getId());
-        key.setKeyTypeId(keyType.getId());
-        key.setKey(passwordEncoder.encode(rawKey));
-        key.setActive(true);
-        key.setAttempts(0);
-        key.setExpiredAt(Instant.now().plus(duration, unit));
-
-        keyRepositoryPort.save(key);
-
-        return rawKey;
+        byte[] randomBytes = new byte[length];
+        secureRandom.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
     @Override
@@ -99,29 +101,34 @@ public class KeyApplicationService implements GenerateKeyUseCase, ValidateKeyUse
                 .orElseThrow(() -> new InvalidCredentialsException("No valid key found or key expired."));
 
         if (key.isExpired()) {
-            key.setActive(false);
-            keyRepositoryPort.save(key);
+            keyRepositoryPort.save(key.toBuilder().active(false).build());
             throw new InvalidCredentialsException("Key has expired.");
         }
 
         if (!passwordEncoder.matches(rawKeyInput, key.getKey())) {
-            key.incrementAttempts();
+            int newAttempts = key.getAttempts() + 1;
+            boolean shouldDeactivate = newAttempts >= maxAttempts;
 
-            if (key.getAttempts() >= maxAttempts) {
-                key.setActive(false);
-                keyRepositoryPort.save(key);
+            Key updatedKey = key.toBuilder()
+                    .attempts(newAttempts)
+                    .active(!shouldDeactivate)
+                    .build();
+
+            keyRepositoryPort.save(updatedKey);
+
+            if (shouldDeactivate) {
                 throw new InvalidCredentialsException("Max attempts reached. Key invalidated.");
             }
-
-            keyRepositoryPort.save(key);
-            throw new InvalidCredentialsException("Invalid code. Attempts remaining: " + (maxAttempts - key.getAttempts()));
+            throw new InvalidCredentialsException("Invalid code. Attempts remaining: " + (maxAttempts - newAttempts));
         }
 
+        Key.KeyBuilder finalKeyBuilder = key.toBuilder();
         if (burnAfterUse) {
-            key.setActive(false);
+            finalKeyBuilder.active(false);
         } else {
-            key.setAttempts(0);
+            finalKeyBuilder.attempts(0);
         }
-        keyRepositoryPort.save(key);
+
+        keyRepositoryPort.save(finalKeyBuilder.build());
     }
 }

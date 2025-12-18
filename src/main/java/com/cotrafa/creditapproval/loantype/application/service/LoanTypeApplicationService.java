@@ -28,26 +28,33 @@ public class LoanTypeApplicationService implements
         if (repository.existsByName(loanType.getName())) {
             throw new DatabaseConflictException("Loan type name already exists");
         }
-        loanType.setActive(true);
-        return repository.save(loanType);
+
+        LoanType typeToSave = loanType.toBuilder()
+                .active(true)
+                .build();
+
+        return repository.save(typeToSave);
     }
 
     @Override
     @Transactional
-    public LoanType update(UUID id, LoanType loanType) {
+    public LoanType update(UUID id, LoanType domainRequest) {
         LoanType existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan type not found"));
 
-        if (!existing.getName().equalsIgnoreCase(loanType.getName()) && repository.existsByName(loanType.getName())) {
+        if (!existing.getName().equalsIgnoreCase(domainRequest.getName()) &&
+                repository.existsByName(domainRequest.getName())) {
             throw new DatabaseConflictException("Loan type name already exists");
         }
 
-        existing.setName(loanType.getName());
-        existing.setAnnualRate(loanType.getAnnualRate());
-        existing.setAutomaticValidation(loanType.isAutomaticValidation());
-        existing.setActive(loanType.isActive());
+        LoanType updatedType = existing.toBuilder()
+                .name(domainRequest.getName())
+                .annualRate(domainRequest.getAnnualRate())
+                .automaticValidation(domainRequest.isAutomaticValidation())
+                .active(domainRequest.isActive())
+                .build();
 
-        return repository.save(existing);
+        return repository.save(updatedType);
     }
 
     @Override
@@ -60,7 +67,8 @@ public class LoanTypeApplicationService implements
     @Override
     @Transactional(readOnly = true)
     public LoanType getById(UUID id) {
-        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Loan type not found"));
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan type not found"));
     }
 
     @Override

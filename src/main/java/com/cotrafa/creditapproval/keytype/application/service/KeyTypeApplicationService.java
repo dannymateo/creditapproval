@@ -18,8 +18,10 @@ public class KeyTypeApplicationService implements FindOrCreateKeyTypeUseCase {
     public KeyType findOrCreate(String name) {
         return repositoryPort.findByName(name)
                 .orElseGet(() -> {
-                    KeyType newType = new KeyType();
-                    newType.setName(name);
+                    KeyType newType = KeyType.builder()
+                            .name(name)
+                            .build();
+
                     return repositoryPort.save(newType);
                 });
     }

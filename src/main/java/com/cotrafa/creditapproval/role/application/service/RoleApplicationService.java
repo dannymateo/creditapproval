@@ -1,6 +1,5 @@
 package com.cotrafa.creditapproval.role.application.service;
 
-import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
 import com.cotrafa.creditapproval.role.domain.model.Permission;
 import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.role.domain.port.in.CreateRoleUseCase;
@@ -39,39 +38,44 @@ public class RoleApplicationService implements CreateRoleUseCase, UpdateRoleUseC
 
         validatePermissions(role.getPermissions());
 
-        return roleRepository.save(role);
+        Role roleToSave = role.toBuilder()
+                .active(true)
+                .build();
+
+        return roleRepository.save(roleToSave);
     }
 
     @Override
     @Transactional
-    public Role update(UUID id, Role role) {
+    public Role update(UUID id, Role roleRequest) {
         Role existingRole = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         if (existingRole.getName().equalsIgnoreCase(RoleConstants.CUSTOMER)) {
-            if (!existingRole.getName().equalsIgnoreCase(role.getName())) {
+            if (roleRequest.getName() != null && !existingRole.getName().equalsIgnoreCase(roleRequest.getName())) {
                 throw new BadRequestException("The role name 'CUSTOMER' is required by the system and cannot be changed");
             }
         }
 
-        if (role.getName() != null &&
-                !existingRole.getName().equalsIgnoreCase(role.getName())) {
+        Role.RoleBuilder builder = existingRole.toBuilder();
 
-            if (roleRepository.existsByName(role.getName())) {
+        if (roleRequest.getName() != null && !existingRole.getName().equalsIgnoreCase(roleRequest.getName())) {
+            if (roleRepository.existsByName(roleRequest.getName())) {
                 throw new DatabaseConflictException("Role already exists");
             }
-            existingRole.setName(role.getName());
+            builder.name(roleRequest.getName());
         }
 
-        if (role.getActive() != null) existingRole.setActive(role.getActive());
-
-        validatePermissions(role.getPermissions());
-
-        if (role.getPermissions() != null) {
-            existingRole.setPermissions(role.getPermissions());
+        if (roleRequest.getActive() != null) {
+            builder.active(roleRequest.getActive());
         }
 
-        return roleRepository.save(existingRole);
+        if (roleRequest.getPermissions() != null) {
+            validatePermissions(roleRequest.getPermissions());
+            builder.permissions(roleRequest.getPermissions());
+        }
+
+        return roleRepository.save(builder.build());
     }
 
     @Override
@@ -93,12 +97,12 @@ public class RoleApplicationService implements CreateRoleUseCase, UpdateRoleUseC
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-        if (roleRepository.isRoleAssignedToUsers(id)) {
-            throw new DatabaseConflictException("Cannot delete role. It is assigned to active users.");
-        }
-
         if (role.getName().equalsIgnoreCase(RoleConstants.CUSTOMER)) {
             throw new BadRequestException("The role name 'CUSTOMER' is required by the system and cannot be deleted");
+        }
+
+        if (roleRepository.isRoleAssignedToUsers(id)) {
+            throw new DatabaseConflictException("Cannot delete role. It is assigned to active users.");
         }
 
         roleRepository.deleteById(id);
