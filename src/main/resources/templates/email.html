@@ -1,129 +1,65 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="x-apple-disable-message-reformatting" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="supported-color-schemes" content="light dark" />
-    <title>Email Notification</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-
-    <style type="text/css">
-        /* Reset CSS */
-        table, td { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
-        body { margin: 0; padding: 0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #f4f7f6; }
-
-        /* Hover Styles */
-        .cta-button:hover { background-color: #007bb5 !important; box-shadow: 0 4px 12px rgba(0, 144, 209, 0.4) !important; transform: translateY(-1px); }
-        .social-icon:hover { opacity: 0.8; }
-        .footer-link:hover { text-decoration: underline !important; color: #0090D1 !important; }
-
-        /* Responsive Styles */
-        @media screen and (max-width: 600px) {
-            .email-container { width: 100% !important; max-width: 100% !important; }
-            .mobile-padding { padding-left: 20px !important; padding-right: 20px !important; }
-            .header-text { font-size: 24px !important; }
-            .mobile-stack { display: block !important; width: 100% !important; }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotrafa Financiera</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f7f6; word-spacing: normal;">
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
 
-<div style="display: none; max-height: 0px; overflow: hidden;">
-    <span th:text="${subtitle}">Important notification from Cotrafa Social</span>
-    &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
-</div>
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
 
-<table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f7f6;">
     <tr>
-        <td align="center" style="padding: 30px 0;">
+        <td style="background: linear-gradient(135deg, #001F3F 0%, #003366 100%); padding: 40px 20px; text-align: center;">
+            <div style="background-color: #ffffff; display: inline-block; padding: 15px 30px; border-radius: 12px; margin-bottom: 25px;">
+                <img src="https://i.postimg.cc/wvcZ7T5L/Logo-Header-199x68-px.png" alt="Cotrafa" width="150" style="display: block;">
+            </div>
 
-            <table role="presentation" class="email-container" width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin: 0 auto;">
+            <h1 th:text="${title}" style="color: #ffffff; font-size: 28px; font-weight: 300; margin: 0; margin-bottom: 10px; letter-spacing: -0.5px;">
+                Notificación Importante
+            </h1>
 
+            <div style="width: 60px; height: 3px; background-color: #FF6B35; margin: 0 auto; border-radius: 2px;"></div>
+
+            <p th:if="${subtitle != null}" th:text="${subtitle}" style="color: #bfdbfe; font-size: 16px; margin-top: 15px; font-weight: 300;">
+                Subtítulo descriptivo
+            </p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 40px 30px; color: #374151; line-height: 1.6;">
+            <div th:utext="${content}" style="font-size: 16px;">
+            </div>
+
+            <table th:if="${action != null}" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 35px;">
                 <tr>
-                    <td align="center" style="background: linear-gradient(135deg, #0090D1 0%, #002869 100%); padding: 40px 30px;">
-                        <img src="https://cotrafasocial.com/wp-content/uploads/2023/09/logo-cotrafasocial.png" alt="Cotrafa Social" width="180" style="display: block; background-color: #ffffff; padding: 12px; border-radius: 12px; margin-bottom: 25px; border: 0;" />
-
-                        <h1 class="header-text" style="color: #ffffff; font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 28px; font-weight: 700; margin: 0 0 10px 0; letter-spacing: -0.5px;" th:text="${title}">
-                            Email Title
-                        </h1>
-
-                        <p style="color: #e6f4fa; font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 16px; margin: 0; font-weight: 400;" th:if="${subtitle != null}" th:text="${subtitle}">
-                            Descriptive subtitle
-                        </p>
-                    </td>
-                </tr>
-
-                <tr th:if="${banner != null and !banner.isEmpty()}">
-                    <td style="padding: 0;">
-                        <img th:src="${banner}" alt="Banner" width="600" style="display: block; width: 100%; max-width: 100%; height: auto; border: 0;" />
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="mobile-padding" style="padding: 40px 40px 30px 40px;">
-
-                        <div style="font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #444444;" th:if="${content != null}" th:utext="${content}">
-                            <p>Hello,</p>
-                            <p>This is the default email content.</p>
-                        </div>
-
-                        <p style="font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #666666; margin-top: 20px;" th:if="${description != null}" th:text="${description}">
-                            Important additional information.
-                        </p>
-
-                        <div th:if="${action != null and action.title != null and action.url != null}" style="text-align: center; margin-top: 35px; margin-bottom: 10px;">
-                            <a th:href="${action.url}" class="cta-button" style="background-color: #0090D1; color: #ffffff; display: inline-block; font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 50px; text-align: center; text-decoration: none; width: 240px; border-radius: 50px; -webkit-text-size-adjust: none; box-shadow: 0 4px 6px rgba(0, 144, 209, 0.2);">
-                                <span th:text="${action.title}">View Details</span> &rarr;
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="padding: 0 40px;">
-                        <div style="height: 1px; background-color: #eeeeee; line-height: 1px;">&nbsp;</div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="mobile-padding" style="padding: 30px 40px; background-color: #ffffff; text-align: center;">
-
-                        <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
-                            <tr>
-                                <td style="padding: 0 10px;">
-                                    <a href="#" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" style="display: block; width: 24px;" class="social-icon"/></a>
-                                </td>
-                                <td style="padding: 0 10px;">
-                                    <a href="#" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24" style="display: block; width: 24px;" class="social-icon"/></a>
-                                </td>
-                                <td style="padding: 0 10px;">
-                                    <a href="#" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3536/3536505.png" alt="LinkedIn" width="24" style="display: block; width: 24px;" class="social-icon"/></a>
-                                </td>
-                            </tr>
-                        </table>
-
-                        <p style="font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #999999; margin: 20px 0 10px 0;">
-                            <a href="https://cotrafasocial.com/" class="footer-link" style="color: #666666; text-decoration: none; margin: 0 10px;">Website</a> |
-                            <a href="https://cotrafasocial.com/contact" class="footer-link" style="color: #666666; text-decoration: none; margin: 0 10px;">Support</a>
-                        </p>
-
-                        <p th:if="${footer != null}" th:text="${footer}" style="font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 12px; color: #aaaaaa; margin: 0 0 10px 0; line-height: 1.5;">
-                            Legal or system generated message.
-                        </p>
-
-                        <p style="font-family: 'Google Sans', Helvetica, Arial, sans-serif; font-size: 12px; color: #bbbbbb; margin: 0;">
-                            &copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span> Cotrafa Social. All rights reserved.
-                        </p>
+                    <td align="center">
+                        <a th:href="${action.url}" th:text="${action.title}"
+                           style="background: linear-gradient(to right, #FF6B35, #FF8A5B); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 30px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(255, 107, 53, 0.3);">
+                            Ver Detalles
+                        </a>
+                        <p style="font-size: 12px; color: #9ca3af; margin-top: 10px;">Haz clic para continuar de forma segura</p>
                     </td>
                 </tr>
             </table>
+        </td>
+    </tr>
 
-            <div style="height: 40px; line-height: 40px; font-size: 40px;">&nbsp;</div>
+    <tr>
+        <td style="padding: 30px; background-color: #f9fafb; text-align: center; border-top: 1px solid #f3f4f6;">
+            <div style="margin-bottom: 20px;">
+                <span style="color: #6b7280; font-size: 14px; font-weight: 600;">Sitio Web • Contáctanos • Ayuda</span>
+            </div>
+
+            <img src="https://i.postimg.cc/8ND1Vfw9/SFC-NEGRO-1-1.png" alt="Vigilado" width="120" style="opacity: 0.7; margin-bottom: 15px;">
+
+            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
+                © <span th:text="${#dates.year(#dates.createNow())}">2025</span> Cotrafa Financiera • Todos los derechos reservados
+            </p>
+            <p style="font-size: 11px; color: #10b981; margin-top: 10px; font-weight: bold;">
+                ✓ Correo seguro y verificado
+            </p>
         </td>
     </tr>
 </table>
