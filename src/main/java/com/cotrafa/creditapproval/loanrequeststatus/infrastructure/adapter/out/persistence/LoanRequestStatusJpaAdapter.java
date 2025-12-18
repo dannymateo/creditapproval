@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +26,12 @@ public class LoanRequestStatusJpaAdapter implements LoanRequestStatusRepositoryP
     @Override
     public Optional<LoanRequestStatus> findByName(String name) {
         return jpaRepository.findByNameIgnoreCase(name)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<LoanRequestStatus> findById(UUID id) {
+        return jpaRepository.findById(id)
                 .map(mapper::toDomain);
     }
 }
