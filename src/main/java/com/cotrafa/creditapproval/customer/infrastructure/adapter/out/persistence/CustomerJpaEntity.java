@@ -1,5 +1,8 @@
 package com.cotrafa.creditapproval.customer.infrastructure.adapter.out.persistence;
 
+import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.out.persistence.IdentificationTypeJpaEntity;
+import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
+import com.cotrafa.creditapproval.user.infrastructure.adapter.out.persistence.UserJpaEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -18,18 +21,20 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CustomerJpaEntity {
+public class CustomerJpaEntity extends Auditable {
 
     @Id
     @GeneratedValue
     @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
     private UUID id;
 
-    @Column(name = "user_id", nullable = false, unique = true)
-    private UUID userId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_customer_user"))
+    private UserJpaEntity user;
 
-    @Column(name = "identification_type_id", nullable = false)
-    private UUID identificationTypeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "identification_type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_customer_identification_type"))
+    private IdentificationTypeJpaEntity identificationType;
 
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;

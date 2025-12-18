@@ -1,5 +1,6 @@
 package com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.out.persistence;
 
+import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class IdentificationTypeJpaEntity {
+public class IdentificationTypeJpaEntity extends Auditable {
 
     @Id
     @GeneratedValue

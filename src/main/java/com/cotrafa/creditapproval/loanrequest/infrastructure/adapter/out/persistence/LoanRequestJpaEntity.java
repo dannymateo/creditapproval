@@ -3,6 +3,7 @@ package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persis
 import com.cotrafa.creditapproval.customer.infrastructure.adapter.out.persistence.CustomerJpaEntity;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
 import com.cotrafa.creditapproval.role.infrastructure.adapter.out.persistence.RoleJpaEntity;
+import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoanRequestJpaEntity {
+public class LoanRequestJpaEntity extends Auditable {
 
     @Id
     @GeneratedValue
@@ -32,22 +33,12 @@ public class LoanRequestJpaEntity {
     @JoinColumn(name = "loan_type_id", nullable = false)
     private LoanTypeJpaEntity loanType;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2, columnDefinition = "DECIMAL(15,2) CHECK (amount > 0)")
     private BigDecimal amount;
 
-    @Column(name = "annual_rate", nullable = false)
+    @Column(name = "annual_rate", nullable = false, columnDefinition = "FLOAT8 CHECK (annual_rate > 0)")
     private Double annualRate;
 
-    @Column(name = "term_months", nullable = false)
+    @Column(name = "term_months", nullable = false, columnDefinition = "INTEGER CHECK (term_months > 0)")
     private Integer termMonths;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-    }
 }

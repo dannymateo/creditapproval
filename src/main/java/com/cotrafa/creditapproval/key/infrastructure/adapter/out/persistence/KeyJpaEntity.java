@@ -31,7 +31,7 @@ public class KeyJpaEntity extends Auditable {
     @JoinColumn(name = "user_id", nullable = false)
     private UserJpaEntity user;
 
-    @Column(name = "key_value", nullable = false)
+    @Column(name = "key_value", nullable = false, length = 255)
     private String key;
 
     @Builder.Default
@@ -39,9 +39,9 @@ public class KeyJpaEntity extends Auditable {
     private boolean active = true;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0 CHECK (attempts >= 0)")
     private int attempts = 0;
 
-    @Column(nullable = false)
+    @Column(name = "expired_at", nullable = false)
     private Instant expiredAt;
 }

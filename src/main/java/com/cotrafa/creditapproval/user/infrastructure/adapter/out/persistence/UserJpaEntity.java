@@ -31,9 +31,10 @@ public class UserJpaEntity extends Auditable {
     @Column(length = 255, nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
+    @Column(nullable = false, length = 255)
     private String lastPassword;
 
     @Builder.Default
@@ -41,7 +42,7 @@ public class UserJpaEntity extends Auditable {
     private boolean active = true;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0 CHECK (login_attempts >= 0)")
     private int loginAttempts = 0;
 
     @Builder.Default
@@ -55,6 +56,9 @@ public class UserJpaEntity extends Auditable {
     @Column(nullable = false, name = "last_password_change")
     private Instant lastPasswordChange = Instant.now();
 
+    @Column(name = "unlock_date")
     private Instant unlockDate;
+
+    @Column(name = "last_login")
     private Instant lastLogin;
 }

@@ -26,10 +26,10 @@ public class SystemEntityJpaEntity extends Auditable{
     @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(length = 50)
+    @Column(name = "cod_group", length = 50)
     private String codGroup;
 
-    @Column(length = 100)
+    @Column(name = "name_group", length = 100)
     private String nameGroup;
 
     @Column(length = 255)
@@ -38,6 +38,6 @@ public class SystemEntityJpaEntity extends Auditable{
     @Column(length = 150)
     private String nameToViewClient;
 
-    @Column(name = "\"order\"")
+    @Column(name = "\"order\"", columnDefinition = "INTEGER CHECK (\"order\" >= 0)")
     private Integer order;
 }

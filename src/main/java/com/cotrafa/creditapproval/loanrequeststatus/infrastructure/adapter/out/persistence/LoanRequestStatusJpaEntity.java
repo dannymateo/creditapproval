@@ -1,5 +1,6 @@
 package com.cotrafa.creditapproval.loanrequeststatus.infrastructure.adapter.out.persistence;
 
+import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoanRequestStatusJpaEntity {
+public class LoanRequestStatusJpaEntity extends Auditable {
     @Id
     @GeneratedValue
     @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
