@@ -1,13 +1,15 @@
 package com.cotrafa.creditapproval.identificationtype.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Builder(toBuilder = true)
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class IdentificationType {
     private UUID id;
     private String name;

@@ -1,9 +1,15 @@
 package com.cotrafa.creditapproval.systementity.domain.model;
 
-import lombok.Data;
+
+import lombok.*;
+
 import java.util.UUID;
 
-@Data
+@Getter
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class SystemEntity {
     private UUID id;
     private String name;

@@ -1,13 +1,16 @@
 package com.cotrafa.creditapproval.loantype.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+
+import lombok.*;
+
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Builder(toBuilder = true)
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class LoanType {
     private UUID id;
     private String name;

@@ -1,10 +1,16 @@
 package com.cotrafa.creditapproval.user.domain.model;
 
-import lombok.Data;
+
+import lombok.*;
+
 import java.time.Instant;
 import java.util.UUID;
 
-@Data
+@Getter
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class User {
     private UUID id;
     private String email;

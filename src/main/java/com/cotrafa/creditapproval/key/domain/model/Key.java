@@ -1,10 +1,16 @@
 package com.cotrafa.creditapproval.key.domain.model;
 
-import lombok.Data;
+
+import lombok.*;
+
 import java.time.Instant;
 import java.util.UUID;
 
-@Data
+@Getter
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Key {
     private UUID id;
     private UUID keyTypeId;
