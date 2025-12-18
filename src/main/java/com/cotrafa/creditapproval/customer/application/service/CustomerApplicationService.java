@@ -2,6 +2,7 @@ package com.cotrafa.creditapproval.customer.application.service;
 
 import com.cotrafa.creditapproval.customer.domain.model.Customer;
 import com.cotrafa.creditapproval.customer.domain.port.in.CreateCustomerUseCase;
+import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
 import com.cotrafa.creditapproval.customer.domain.port.out.CustomerRepository;
 import com.cotrafa.creditapproval.identificationtype.domain.model.IdentificationType;
 import com.cotrafa.creditapproval.identificationtype.domain.port.in.GetIdentificationTypeUseCase;
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerApplicationService implements CreateCustomerUseCase {
+public class CustomerApplicationService implements CreateCustomerUseCase, GetCustomerUseCase {
 
     private final CustomerRepository customerRepository;
     private final CreateUserUseCase createUserUseCase;
@@ -63,6 +64,13 @@ public class CustomerApplicationService implements CreateCustomerUseCase {
         return savedCustomer.toBuilder()
                 .email(savedUser.getEmail())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Customer getByUserId(UUID userId) {
+        return customerRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("No customer profile found for the authenticated user."));
     }
 
     private void validateSalary(BigDecimal salary) {

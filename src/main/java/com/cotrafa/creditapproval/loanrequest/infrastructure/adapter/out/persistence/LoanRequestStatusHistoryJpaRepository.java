@@ -9,8 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LoanRequestStatusHistoryJpaRepository extends JpaRepository<LoanRequestStatusHistoryJpaEntity, UUID> {
-    Optional<LoanRequestStatusHistoryJpaEntity> findByLoanRequestIdAndCurrentTrue(UUID loanRequestId);
+
+    @Query("SELECT s FROM LoanRequestStatusHistoryJpaEntity s WHERE s.loanRequest.id = :requestId AND s.current = true")
+    Optional<LoanRequestStatusHistoryJpaEntity> findByLoanRequestIdAndCurrentTrue(@Param("requestId") UUID requestId);
+
     @Modifying
-    @Query("UPDATE LoanRequestStatusHistoryJpaEntity s SET s.current = false WHERE s.loanRequestId = :requestId")
+    @Query("UPDATE LoanRequestStatusHistoryJpaEntity s SET s.current = false WHERE s.loanRequest.id = :requestId")
     void deactivateAllByLoanRequestId(@Param("requestId") UUID requestId);
 }

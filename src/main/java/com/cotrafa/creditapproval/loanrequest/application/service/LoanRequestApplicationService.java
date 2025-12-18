@@ -1,6 +1,7 @@
 package com.cotrafa.creditapproval.loanrequest.application.service;
 
 import com.cotrafa.creditapproval.customer.domain.model.Customer;
+import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
 import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;

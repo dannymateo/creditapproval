@@ -29,6 +29,11 @@ public class CustomerJpaAdapter implements CustomerRepository {
     }
 
     @Override
+    public Optional<Customer> findByUserId(UUID userId) {
+        return jpaRepository.findByUserId(userId).map(mapper::toDomain);
+    }
+
+    @Override
     public boolean existsByIdentification(UUID typeId, String number) {
         return jpaRepository.existsByIdentificationTypeIdAndIdentificationNumber(typeId, number);
     }

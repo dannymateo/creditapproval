@@ -24,11 +24,13 @@ public class LoanRequestJpaEntity {
     @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
     private UUID id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
-    private CustomerJpaEntity customerId;
+    private CustomerJpaEntity customer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loan_type_id", nullable = false)
-    private LoanTypeJpaEntity loanTypeId;
+    private LoanTypeJpaEntity loanType;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;

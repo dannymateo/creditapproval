@@ -1,5 +1,6 @@
 package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persistence;
 
+import com.cotrafa.creditapproval.loanrequeststatus.infrastructure.adapter.out.persistence.LoanRequestStatusJpaEntity;
 import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,14 +18,17 @@ import java.util.UUID;
 public class LoanRequestStatusHistoryJpaEntity extends Auditable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID loanRequestId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loan_request_id", nullable = false, updatable = false)
+    private LoanRequestJpaEntity loanRequest;
 
-    @Column(nullable = false)
-    private UUID loanRequestStatusId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loan_request_status_id", nullable = false, updatable = false)
+    private LoanRequestStatusJpaEntity loanRequestStatus;
 
     @Column(name = "assigned_at", nullable = false, updatable = false)
     private LocalDateTime assignedAt;
