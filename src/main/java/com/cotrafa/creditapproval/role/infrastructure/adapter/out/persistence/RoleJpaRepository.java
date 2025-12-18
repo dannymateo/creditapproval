@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,4 +20,5 @@ public interface RoleJpaRepository extends JpaRepository<RoleJpaEntity, UUID> {
     );
     @Query("SELECT r FROM RoleJpaEntity r LEFT JOIN FETCH r.permissions WHERE r.id = :id")
     Optional<RoleJpaEntity> findByIdWithPermissions(@Param("id") UUID id);
+    List<RoleJpaEntity> findAllByActiveTrue();
 }

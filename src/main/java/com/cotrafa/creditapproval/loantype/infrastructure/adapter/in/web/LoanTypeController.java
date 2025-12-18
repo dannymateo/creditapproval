@@ -38,19 +38,19 @@ public class LoanTypeController {
         return ResponseEntity.ok(ApiResponse.success(list));
     }
 
-    @GetMapping("/active")
-    public ResponseEntity<ApiResponse<List<LoanTypeSelectResponse>>> getActive() {
-        List<LoanTypeSelectResponse> response = getUseCase.getAllActive().stream()
-                .map(mapper::toSelectResponse) // Usamos el nuevo mapper
-                .toList();
-
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<LoanTypeResponse>> getById(@PathVariable UUID id) {
         LoanType domain = getUseCase.getById(id);
         LoanTypeResponse response = mapper.toResponse(domain);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<LoanTypeSelectResponse>>> getActive() {
+        List<LoanTypeSelectResponse> response = getUseCase.getAllActive().stream()
+                .map(mapper::toSelectResponse)
+                .toList();
+
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

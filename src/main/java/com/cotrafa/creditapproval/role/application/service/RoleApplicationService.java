@@ -1,5 +1,6 @@
 package com.cotrafa.creditapproval.role.application.service;
 
+import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
 import com.cotrafa.creditapproval.role.domain.model.Permission;
 import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.role.domain.port.in.CreateRoleUseCase;
@@ -101,6 +102,12 @@ public class RoleApplicationService implements CreateRoleUseCase, UpdateRoleUseC
         }
 
         roleRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Role> getAllActive() {
+        return roleRepository.findAllActive();
     }
 
     private void validatePermissions(List<Permission> permissions) {

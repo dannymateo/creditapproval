@@ -7,6 +7,7 @@ import com.cotrafa.creditapproval.role.domain.port.in.GetRoleUseCase;
 import com.cotrafa.creditapproval.role.domain.port.in.UpdateRoleUseCase;
 import com.cotrafa.creditapproval.role.infrastructure.adapter.in.web.dto.CreateRoleDTO;
 import com.cotrafa.creditapproval.role.infrastructure.adapter.in.web.dto.RoleResponse;
+import com.cotrafa.creditapproval.role.infrastructure.adapter.in.web.dto.RoleSelectResponse;
 import com.cotrafa.creditapproval.role.infrastructure.adapter.in.web.dto.UpdateRoleDTO;
 import com.cotrafa.creditapproval.role.infrastructure.adapter.in.web.mapper.RoleMapper;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
@@ -51,10 +52,20 @@ public class RoleController {
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RoleResponse>> getById(@PathVariable UUID id) {
         Role domain = getUseCase.getById(id);
         RoleResponse response = roleMapper.toResponse(domain);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<RoleSelectResponse>>> getActive() {
+        List<RoleSelectResponse> response = getUseCase.getAllActive().stream()
+                .map(roleMapper::toSelectResponse)
+                .toList();
+
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

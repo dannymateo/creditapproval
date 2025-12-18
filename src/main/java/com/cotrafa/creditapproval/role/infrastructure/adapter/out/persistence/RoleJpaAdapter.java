@@ -1,5 +1,6 @@
 package com.cotrafa.creditapproval.role.infrastructure.adapter.out.persistence;
 
+import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
 import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.role.domain.port.out.RoleRepositoryPort;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
@@ -91,5 +92,12 @@ public class RoleJpaAdapter implements RoleRepositoryPort {
                 entityPage.getTotalElements(),
                 entityPage.getTotalPages()
         );
+    }
+
+    @Override
+    public List<Role> findAllActive() {
+        return jpaRepository.findAllByActiveTrue().stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

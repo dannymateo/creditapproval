@@ -4,6 +4,7 @@ import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
 import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,4 +16,5 @@ public interface RoleRepositoryPort {
     void deleteById(UUID id);
     boolean isRoleAssignedToUsers(UUID roleId);
     PaginatedResult<Role> findAll(PaginationCriteria criteria);
+    List<Role> findAllActive();
 }
