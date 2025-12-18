@@ -44,8 +44,6 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
                 .annualRate(loanType.getAnnualRate())
                 .build());
 
-        notificationPort.sendReceivedEmail(buildNotificationData(savedRequest, customer, loanType));
-
         UUID statusIdToApply;
         String observation;
 
@@ -109,6 +107,9 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
             }
             case LoanRequestStatusConstants.REJECTED -> {
                 notificationPort.sendRejectedEmail(notificationData);
+            }
+            case LoanRequestStatusConstants.PENDING_REVIEW -> {
+                notificationPort.sendReceivedEmail(notificationData);
             }
         }
     }
