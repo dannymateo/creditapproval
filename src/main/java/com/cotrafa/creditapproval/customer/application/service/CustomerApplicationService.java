@@ -68,6 +68,13 @@ public class CustomerApplicationService implements CreateCustomerUseCase, GetCus
 
     @Override
     @Transactional(readOnly = true)
+    public Customer getById(UUID id) {
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Customer getByUserId(UUID userId) {
         return customerRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("No customer profile found for the authenticated user."));

@@ -5,6 +5,7 @@ import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
 import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
+import com.cotrafa.creditapproval.loanrequest.domain.model.NotificationData;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.CreateLoanRequestUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.UpdateLoanRequestStatusUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.port.out.NotificationPort;
@@ -36,7 +37,6 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
     @Transactional
     public LoanRequest create(LoanRequest loanRequest, UUID userId) {
         Customer customer = customerUseCase.getByUserId(userId);
-
         LoanType loanType = loanTypeUseCase.getById(loanRequest.getLoanTypeId());
 
         LoanRequest savedRequest = repositoryPort.save(loanRequest.toBuilder()
@@ -44,20 +44,23 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
                 .annualRate(loanType.getAnnualRate())
                 .build());
 
-        notificationPort.sendReceivedEmail(savedRequest);
+        notificationPort.sendReceivedEmail(buildNotificationData(savedRequest, customer, loanType));
 
         UUID statusIdToApply;
+        String observation;
 
         if (loanType.isAutomaticValidation()) {
             statusIdToApply = repositoryPort.callAutomaticValidationProcedure(
                     savedRequest.getCustomerId(),
                     savedRequest.getLoanTypeId(),
                     savedRequest.getAmount());
+            observation = "Automatic system validation";
         } else {
             statusIdToApply = statusUseCase.getByName(LoanRequestStatusConstants.PENDING_REVIEW).getId();
+            observation = "Initial system processing - Waiting for Analyst";
         }
 
-        processStatusTransition(savedRequest, statusIdToApply, "Initial system processing");
+        processStatusTransition(savedRequest, statusIdToApply, observation, customer, loanType);
 
         return savedRequest;
     }
@@ -73,16 +76,19 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
 
         LoanRequestStatus currentStatus = statusUseCase.getById(currentHistory.getLoanRequestStatusId());
 
-        // State machine: Only allows updates if it is in PENDING_REVIEW
         if (!currentStatus.getName().equals(LoanRequestStatusConstants.PENDING_REVIEW)) {
             throw new BadRequestException("Only requests in PENDING_REVIEW can be updated.");
         }
 
+        Customer customer = customerUseCase.getById(request.getCustomerId());
+        LoanType loanType = loanTypeUseCase.getById(request.getLoanTypeId());
+
         String obs = (observation == null || observation.isBlank()) ? "Manual update by Analyst" : observation;
-        processStatusTransition(request, statusId, obs);
+
+        processStatusTransition(request, statusId, obs, customer, loanType);
     }
 
-    private void processStatusTransition(LoanRequest request, UUID statusId, String observation) {
+    private void processStatusTransition(LoanRequest request, UUID statusId, String observation, Customer customer, LoanType loanType) {
         LoanRequestStatus status = statusUseCase.getById(statusId);
 
         repositoryPort.markPreviousStatusesAsInactive(request.getId());
@@ -94,12 +100,26 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
                 .observation(observation)
                 .build());
 
+        NotificationData notificationData = buildNotificationData(request, customer, loanType);
+
         switch (status.getName()) {
             case LoanRequestStatusConstants.APPROVED -> {
-                notificationPort.sendApprovedEmail(request);
-                // Aquí se llamará al módulo de 'Loan' para generar el crédito y plan de pagos
+                notificationPort.sendApprovedEmail(notificationData);
+                // TODO: Inyectar LoanService y llamar: loanService.disburse(request, customer);
             }
-            case LoanRequestStatusConstants.REJECTED -> notificationPort.sendRejectedEmail(request);
+            case LoanRequestStatusConstants.REJECTED -> {
+                notificationPort.sendRejectedEmail(notificationData);
+            }
         }
+    }
+
+    private NotificationData buildNotificationData(LoanRequest request, Customer customer, LoanType loanType) {
+        return NotificationData.builder()
+                .toEmail(customer.getEmail())
+                .customerName(customer.getFirstName() + " " + customer.getLastName())
+                .loanTypeName(loanType.getName())
+                .amount(request.getAmount())
+                .requestId(request.getId().toString())
+                .build();
     }
 }

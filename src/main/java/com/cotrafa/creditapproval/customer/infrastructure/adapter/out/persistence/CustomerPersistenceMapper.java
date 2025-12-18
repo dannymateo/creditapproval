@@ -12,6 +12,7 @@ public interface CustomerPersistenceMapper {
     CustomerJpaEntity toEntity(Customer domain);
 
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "email", source = "user.email")
     @Mapping(target = "identificationTypeId", source = "identificationType.id")
     Customer toDomain(CustomerJpaEntity entity);
 }
