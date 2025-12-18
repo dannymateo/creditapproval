@@ -11,5 +11,4 @@ public interface GetRoleUseCase {
     Role getById(UUID id);
     PaginatedResult<Role> getAll(PaginationCriteria criteria);
     List<Role> getAllActive();
-
 }

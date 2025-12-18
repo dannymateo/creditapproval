@@ -7,6 +7,7 @@ import com.cotrafa.creditapproval.identificationtype.domain.port.in.GetIdentific
 import com.cotrafa.creditapproval.identificationtype.domain.port.in.UpdateIdentificationTypeUseCase;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.CreateIdentificationTypeDTO;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeResponse;
+import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeSelectResponse;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.UpdateIdentificationTypeDTO;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.mapper.IdentificationTypeMapper;
 import com.cotrafa.creditapproval.shared.infrastructure.mapper.PaginationWebMapper;
@@ -43,6 +44,15 @@ public class IdentificationTypeController {
     public ResponseEntity<ApiResponse<IdentificationTypeResponse>> getById(@PathVariable UUID id) {
         IdentificationType domain = getUseCase.getById(id);
         IdentificationTypeResponse response = mapper.toResponse(domain);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<IdentificationTypeSelectResponse>>> getActive() {
+        List<IdentificationTypeSelectResponse> response = getUseCase.getAllActive().stream()
+                .map(mapper::toSelectResponse)
+                .toList();
+
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

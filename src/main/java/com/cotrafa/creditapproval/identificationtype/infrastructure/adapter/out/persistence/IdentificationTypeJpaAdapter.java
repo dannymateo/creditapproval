@@ -3,6 +3,7 @@ package com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.out
 import com.cotrafa.creditapproval.identificationtype.domain.model.IdentificationType;
 import com.cotrafa.creditapproval.identificationtype.domain.port.out.IdentificationTypeRepository;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
+import com.cotrafa.creditapproval.role.domain.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,13 @@ public class IdentificationTypeJpaAdapter implements IdentificationTypeRepositor
     @Override
     public List<IdentificationType> findAll() {
         return jpaRepository.findAll().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<IdentificationType> findAllActive() {
+        return jpaRepository.findAllByActiveTrue().stream()
                 .map(mapper::toDomain)
                 .toList();
     }

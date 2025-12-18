@@ -76,4 +76,10 @@ public class IdentificationTypeApplicationService implements
     public List<IdentificationType> getAll() {
         return repository.findAll();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<IdentificationType> getAllActive() {
+        return repository.findAllActive();
+    }
 }

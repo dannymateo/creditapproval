@@ -2,8 +2,10 @@ package com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.out
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface IdentificationTypeJpaRepository extends JpaRepository<IdentificationTypeJpaEntity, UUID> {
     boolean existsByNameIgnoreCase(String name);
+    List<IdentificationTypeJpaEntity> findAllByActiveTrue();
 }

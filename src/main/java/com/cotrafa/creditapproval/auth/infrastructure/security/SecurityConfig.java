@@ -57,13 +57,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/system-entities").hasAuthority("ROLE_READ")
 
                         // Role module
-                        .requestMatchers(HttpMethod.GET, "/api/role/active").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/role/**").hasAuthority("ROLE_READ")
+                        .requestMatchers(HttpMethod.GET, "/api/role/active").hasAnyAuthority("USER_CREATE", "USER_UPDATE")                        .requestMatchers(HttpMethod.GET, "/api/role/**").hasAuthority("ROLE_READ")
                         .requestMatchers(HttpMethod.POST, "/api/role/**").hasAuthority("ROLE_CREATE")
                         .requestMatchers(HttpMethod.PUT, "/api/role/**").hasAuthority("ROLE_UPDATE")
                         .requestMatchers(HttpMethod.DELETE, "/api/role/**").hasAuthority("ROLE_DELETE")
 
                         // Identification type module
+                        .requestMatchers(HttpMethod.GET, "/api/identification-type/active").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_READ")
 
                         .requestMatchers(HttpMethod.POST, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")

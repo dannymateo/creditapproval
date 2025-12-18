@@ -3,7 +3,9 @@ package com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.
 import com.cotrafa.creditapproval.identificationtype.domain.model.IdentificationType;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.CreateIdentificationTypeDTO;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeResponse;
+import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeSelectResponse;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.UpdateIdentificationTypeDTO;
+import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.shared.infrastructure.mapper.CentralMapperConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,4 +22,7 @@ public interface IdentificationTypeMapper {
     IdentificationType toDomain(UpdateIdentificationTypeDTO dto);
 
     IdentificationTypeResponse toResponse(IdentificationType domain);
+
+    IdentificationTypeSelectResponse toSelectResponse(IdentificationType domain);
+
 }

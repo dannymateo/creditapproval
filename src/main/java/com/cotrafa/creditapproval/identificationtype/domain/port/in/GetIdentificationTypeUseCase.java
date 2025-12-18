@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface GetIdentificationTypeUseCase {
     IdentificationType getById(UUID id);
     List<IdentificationType> getAll();
+    List<IdentificationType> getAllActive();
 }
