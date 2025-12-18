@@ -77,6 +77,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/loan-type/**").hasAuthority("LOAN_TYPE_UPDATE")
                         .requestMatchers(HttpMethod.DELETE, "/api/loan-type/**").hasAuthority("LOAN_TYPE_DELETE")
 
+                        // Loan request status module
+                        .requestMatchers(HttpMethod.GET, "/api/loan-request-status").hasAnyAuthority("LOAN_REQUEST_READ", "LOAN_REQUEST_UPDATE")
+
                         // Everything else requires authentication
                         .anyRequest().authenticated()
                 )

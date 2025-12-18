@@ -25,5 +25,4 @@ public interface RoleMapper {
     PermissionDTO toPermissionDTO(Permission permission);
 
     RoleSelectResponse toSelectResponse(Role domain);
-
 }
