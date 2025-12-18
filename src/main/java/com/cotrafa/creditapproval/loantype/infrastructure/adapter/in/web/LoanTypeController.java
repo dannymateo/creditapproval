@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/loan-type")
+@RequestMapping("/api/v1/loan-type")
 @RequiredArgsConstructor
 public class LoanTypeController {
 

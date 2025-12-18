@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/loan-request-status")
+@RequestMapping("/api/v1/loan-request-status")
 @RequiredArgsConstructor
 public class LoanRequestStatusController {
 

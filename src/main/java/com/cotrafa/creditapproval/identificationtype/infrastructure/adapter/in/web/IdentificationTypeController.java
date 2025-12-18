@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/identification-type")
+@RequestMapping("/api/v1/identification-type")
 @RequiredArgsConstructor
 public class IdentificationTypeController {
 
