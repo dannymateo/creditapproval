@@ -6,6 +6,8 @@ import com.cotrafa.creditapproval.identificationtype.domain.port.in.DeleteIdenti
 import com.cotrafa.creditapproval.identificationtype.domain.port.in.GetIdentificationTypeUseCase;
 import com.cotrafa.creditapproval.identificationtype.domain.port.in.UpdateIdentificationTypeUseCase;
 import com.cotrafa.creditapproval.identificationtype.domain.port.out.IdentificationTypeRepository;
+import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
+import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.DatabaseConflictException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -79,8 +81,8 @@ public class IdentificationTypeApplicationService implements
 
     @Override
     @Transactional(readOnly = true)
-    public List<IdentificationType> getAll() {
-        return repository.findAll();
+    public PaginatedResult<IdentificationType> getAll(PaginationCriteria criteria) {
+        return repository.findAll(criteria);
     }
 
     @Override

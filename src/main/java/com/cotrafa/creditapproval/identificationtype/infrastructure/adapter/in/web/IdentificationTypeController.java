@@ -10,8 +10,12 @@ import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.w
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.IdentificationTypeSelectResponse;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.dto.UpdateIdentificationTypeDTO;
 import com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.in.web.mapper.IdentificationTypeMapper;
+import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
+import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import com.cotrafa.creditapproval.shared.infrastructure.mapper.PaginationWebMapper;
 import com.cotrafa.creditapproval.shared.infrastructure.web.dto.ApiResponse;
+import com.cotrafa.creditapproval.shared.infrastructure.web.dto.PaginatedResponseDTO;
+import com.cotrafa.creditapproval.shared.infrastructure.web.dto.PaginationRequestDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +37,20 @@ public class IdentificationTypeController {
     private final PaginationWebMapper paginationMapper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<IdentificationTypeResponse>>> getAll() {
-        List<IdentificationTypeResponse> list = getUseCase.getAll().stream()
+    public ResponseEntity<ApiResponse<PaginatedResponseDTO<IdentificationTypeResponse>>> getAll(
+            @ModelAttribute PaginationRequestDTO requestDto) {
+
+        PaginationCriteria criteria = paginationMapper.toDomain(requestDto);
+
+        PaginatedResult<IdentificationType> domainResult = getUseCase.getAll(criteria);
+
+        List<IdentificationTypeResponse> identificationTypeDtos = domainResult.getItems().stream()
                 .map(mapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(ApiResponse.success(list));
+
+        PaginatedResponseDTO<IdentificationTypeResponse> response = paginationMapper.toResponse(domainResult, identificationTypeDtos);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/{id}")
