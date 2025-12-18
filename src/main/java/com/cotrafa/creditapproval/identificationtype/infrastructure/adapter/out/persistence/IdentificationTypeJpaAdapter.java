@@ -2,12 +2,8 @@ package com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.out
 
 import com.cotrafa.creditapproval.identificationtype.domain.model.IdentificationType;
 import com.cotrafa.creditapproval.identificationtype.domain.port.out.IdentificationTypeRepository;
-import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
-import com.cotrafa.creditapproval.role.domain.model.Role;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
 import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
-import com.cotrafa.creditapproval.user.domain.model.User;
-import com.cotrafa.creditapproval.user.infrastructure.adapter.out.persistence.UserJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
