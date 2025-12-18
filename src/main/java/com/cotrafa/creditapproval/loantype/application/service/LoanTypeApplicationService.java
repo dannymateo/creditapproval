@@ -6,6 +6,8 @@ import com.cotrafa.creditapproval.loantype.domain.port.in.DeleteLoanTypeUseCase;
 import com.cotrafa.creditapproval.loantype.domain.port.in.GetLoanTypeUseCase;
 import com.cotrafa.creditapproval.loantype.domain.port.in.UpdateLoanTypeUseCase;
 import com.cotrafa.creditapproval.loantype.domain.port.out.LoanTypeRepository;
+import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
+import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.DatabaseConflictException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -73,8 +75,8 @@ public class LoanTypeApplicationService implements
 
     @Override
     @Transactional(readOnly = true)
-    public List<LoanType> getAll() {
-        return repository.findAll();
+    public PaginatedResult<LoanType> getAll(PaginationCriteria criteria) {
+        return repository.findAll(criteria);
     }
 
     @Override

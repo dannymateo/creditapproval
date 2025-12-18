@@ -10,7 +10,12 @@ import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.Loa
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.LoanTypeSelectResponse;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.UpdateLoanTypeDTO;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.mapper.LoanTypeMapper;
+import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
+import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
+import com.cotrafa.creditapproval.shared.infrastructure.mapper.PaginationWebMapper;
 import com.cotrafa.creditapproval.shared.infrastructure.web.dto.ApiResponse;
+import com.cotrafa.creditapproval.shared.infrastructure.web.dto.PaginatedResponseDTO;
+import com.cotrafa.creditapproval.shared.infrastructure.web.dto.PaginationRequestDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +34,22 @@ public class LoanTypeController {
     private final GetLoanTypeUseCase getUseCase;
     private final DeleteLoanTypeUseCase deleteUseCase;
     private final LoanTypeMapper mapper;
+    private final PaginationWebMapper paginationMapper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<LoanTypeResponse>>> getAll() {
-        List<LoanTypeResponse> list = getUseCase.getAll().stream()
+    public ResponseEntity<ApiResponse<PaginatedResponseDTO<LoanTypeResponse>>> getAll(
+            @ModelAttribute PaginationRequestDTO requestDto) {
+
+        PaginationCriteria criteria = paginationMapper.toDomain(requestDto);
+
+        PaginatedResult<LoanType> domainResult = getUseCase.getAll(criteria);
+
+        List<LoanTypeResponse> loanTypeDtos = domainResult.getItems().stream()
                 .map(mapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(ApiResponse.success(list));
+
+        PaginatedResponseDTO<LoanTypeResponse> response = paginationMapper.toResponse(domainResult, loanTypeDtos);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/{id}")

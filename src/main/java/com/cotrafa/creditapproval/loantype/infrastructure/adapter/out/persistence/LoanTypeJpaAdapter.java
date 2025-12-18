@@ -2,8 +2,15 @@ package com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persisten
 
 import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
 import com.cotrafa.creditapproval.loantype.domain.port.out.LoanTypeRepository;
+import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
+import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +37,36 @@ public class LoanTypeJpaAdapter implements LoanTypeRepository {
     }
 
     @Override
-    public List<LoanType> findAll() {
-        return jpaRepository.findAll().stream()
+    public PaginatedResult<LoanType> findAll(PaginationCriteria criteria) {
+
+        Pageable pageable = PageRequest.of(
+                criteria.getPage(),
+                criteria.getSize(),
+                Sort.by("name")
+        );
+
+        Page<LoanTypeJpaEntity> entityPage;
+        String searchTerm = criteria.getSearch();
+
+        if (StringUtils.hasText(searchTerm)) {
+            entityPage = jpaRepository.findByNameContainingIgnoreCase(
+                    searchTerm, pageable
+            );
+        } else {
+            entityPage = jpaRepository.findAll(pageable);
+        }
+
+        List<LoanType> domainIdentificationTypes = entityPage.getContent().stream()
                 .map(mapper::toDomain)
                 .toList();
+
+        return new PaginatedResult<>(
+                domainIdentificationTypes,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements(),
+                entityPage.getTotalPages()
+        );
     }
 
     @Override
