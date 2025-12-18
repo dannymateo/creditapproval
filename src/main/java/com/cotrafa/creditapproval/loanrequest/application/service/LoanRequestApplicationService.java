@@ -1,5 +1,6 @@
 package com.cotrafa.creditapproval.loanrequest.application.service;
 
+import com.cotrafa.creditapproval.customer.domain.model.Customer;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
 import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
@@ -27,16 +28,20 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
     private final LoanRequestRepositoryPort repositoryPort;
     private final GetLoanTypeUseCase loanTypeUseCase;
     private final GetLoanRequestStatusUseCase statusUseCase;
+    private final GetCustomerUseCase customerUseCase;
     private final NotificationPort notificationPort;
 
     @Override
     @Transactional
-    public LoanRequest create(LoanRequest loanRequest) {
+    public LoanRequest create(LoanRequest loanRequest, UUID userId) {
+        Customer customer = customerUseCase.getByUserId(userId);
+
         LoanType loanType = loanTypeUseCase.getById(loanRequest.getLoanTypeId());
 
-        LoanRequest savedRequest = repositoryPort.save(loanRequest.toBuilder()
+        LoanRequest savedRequest = loanRequest.toBuilder()
+                .customerId(customer.getId())
                 .annualRate(loanType.getAnnualRate())
-                .build());
+                .build();
 
         notificationPort.sendReceivedEmail(savedRequest);
 
@@ -51,7 +56,7 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
             statusIdToApply = statusUseCase.getByName(LoanRequestStatusConstants.PENDING_REVIEW).getId();
         }
 
-        processStatusTransition(savedRequest, statusIdToApply, "Initial system processing\n");
+        processStatusTransition(savedRequest, statusIdToApply, "Initial system processing");
 
         return savedRequest;
     }

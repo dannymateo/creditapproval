@@ -65,7 +65,6 @@ public class SecurityConfig {
                         // Identification type module
                         .requestMatchers(HttpMethod.GET, "/api/identification-type/active").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_READ")
-
                         .requestMatchers(HttpMethod.POST, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")
                         .requestMatchers(HttpMethod.PUT, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
                         .requestMatchers(HttpMethod.DELETE, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_DELETE")
@@ -79,6 +78,10 @@ public class SecurityConfig {
 
                         // Loan request status module
                         .requestMatchers(HttpMethod.GET, "/api/loan-request-status").hasAnyAuthority("LOAN_REQUEST_READ", "LOAN_REQUEST_UPDATE")
+
+                        // Loan request module
+                        .requestMatchers(HttpMethod.POST, "/api/loan-request").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/loan-request").hasAnyAuthority("LOAN_REQUEST_UPDATE")
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()

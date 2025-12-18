@@ -70,7 +70,7 @@ public class RoleController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RoleResponse>> createRole(
+    public ResponseEntity<ApiResponse<RoleResponse>> create(
             @Valid @RequestBody CreateRoleDTO createRoleDTO) {
         Role domainReq = roleMapper.toDomain(createRoleDTO);
         Role createdDomain = createUseCase.create(domainReq);
