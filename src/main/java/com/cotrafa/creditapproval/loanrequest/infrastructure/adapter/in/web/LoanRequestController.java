@@ -36,15 +36,11 @@ public class LoanRequestController {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            try {
-                UUID userId = jwtUtil.getUserId(token);
+            UUID userId = jwtUtil.getUserId(token);
 
-                LoanRequest domain = loanRequestMapper.toDomain(dto);
+            LoanRequest domain = loanRequestMapper.toDomain(dto);
 
-                return ResponseEntity.ok(ApiResponse.success(createUseCase.create(domain, userId)));
-            } catch (Exception e) {
-                return ResponseEntity.internalServerError().body(ApiResponse.error("An error occurred while creating the loan request.", 500));
-            }
+            return ResponseEntity.ok(ApiResponse.success(createUseCase.create(domain, userId)));
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

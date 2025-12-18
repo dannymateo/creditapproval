@@ -23,7 +23,9 @@ public class LoanRequestJpaAdapter implements LoanRequestRepositoryPort {
 
     @Override
     public LoanRequest save(LoanRequest loanRequest) {
-        return mapper.toDomain(jpaRepository.save(mapper.toEntity(loanRequest)));
+        LoanRequestJpaEntity entity = mapper.toEntity(loanRequest);
+        LoanRequestJpaEntity savedEntity = jpaRepository.saveAndFlush(entity);
+        return mapper.toDomain(savedEntity);
     }
 
     @Override

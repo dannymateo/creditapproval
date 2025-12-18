@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/user/**").hasAuthority("USER_READ")
                         .requestMatchers(HttpMethod.POST, "/api/user/**").hasAuthority("USER_CREATE")
                         .requestMatchers(HttpMethod.PUT, "/api/user/**").hasAuthority("USER_UPDATE")
-                        .requestMatchers(HttpMethod.PATCH, "/api/user/**").hasAuthority("USER_UPDATE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/user/*/reset-password").hasAuthority("USER_UPDATE")
                         .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasAuthority("USER_DELETE")
 
                         // Entity module
@@ -81,7 +81,7 @@ public class SecurityConfig {
 
                         // Loan request module
                         .requestMatchers(HttpMethod.POST, "/api/loan-request").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/loan-request").hasAnyAuthority("LOAN_REQUEST_UPDATE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/loan-request/*/status").hasAnyAuthority("LOAN_REQUEST_UPDATE")
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()

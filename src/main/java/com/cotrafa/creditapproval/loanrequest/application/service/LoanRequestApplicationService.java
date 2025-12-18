@@ -39,10 +39,10 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
 
         LoanType loanType = loanTypeUseCase.getById(loanRequest.getLoanTypeId());
 
-        LoanRequest savedRequest = loanRequest.toBuilder()
+        LoanRequest savedRequest = repositoryPort.save(loanRequest.toBuilder()
                 .customerId(customer.getId())
                 .annualRate(loanType.getAnnualRate())
-                .build();
+                .build());
 
         notificationPort.sendReceivedEmail(savedRequest);
 
