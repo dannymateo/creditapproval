@@ -7,6 +7,7 @@ import com.cotrafa.creditapproval.loantype.domain.port.in.GetLoanTypeUseCase;
 import com.cotrafa.creditapproval.loantype.domain.port.in.UpdateLoanTypeUseCase;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.CreateLoanTypeDTO;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.LoanTypeResponse;
+import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.LoanTypeSelectResponse;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.dto.UpdateLoanTypeDTO;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.in.web.mapper.LoanTypeMapper;
 import com.cotrafa.creditapproval.shared.infrastructure.web.dto.ApiResponse;
@@ -35,6 +36,15 @@ public class LoanTypeController {
                 .map(mapper::toResponse)
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(list));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<LoanTypeSelectResponse>>> getActive() {
+        List<LoanTypeSelectResponse> response = getUseCase.getAllActive().stream()
+                .map(mapper::toSelectResponse) // Usamos el nuevo mapper
+                .toList();
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/{id}")

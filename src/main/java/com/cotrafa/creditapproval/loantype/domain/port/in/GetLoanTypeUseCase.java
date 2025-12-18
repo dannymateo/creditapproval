@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface GetLoanTypeUseCase {
     LoanType getById(UUID id);
     List<LoanType> getAll();
+    List<LoanType> getAllActive();
 }

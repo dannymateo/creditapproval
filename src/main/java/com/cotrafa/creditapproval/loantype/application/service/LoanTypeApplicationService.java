@@ -65,5 +65,13 @@ public class LoanTypeApplicationService implements
 
     @Override
     @Transactional(readOnly = true)
-    public List<LoanType> getAll() { return repository.findAll(); }
+    public List<LoanType> getAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LoanType> getAllActive() {
+        return repository.findAllActive();
+    }
 }

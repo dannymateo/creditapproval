@@ -9,6 +9,7 @@ public interface LoanTypeRepository {
     LoanType save(LoanType loanType);
     Optional<LoanType> findById(UUID id);
     List<LoanType> findAll();
+    List<LoanType> findAllActive();
     boolean existsByName(String name);
     void deleteById(UUID id);
 }

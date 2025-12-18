@@ -37,6 +37,13 @@ public class LoanTypeJpaAdapter implements LoanTypeRepository {
     }
 
     @Override
+    public List<LoanType> findAllActive() {
+        return jpaRepository.findAllByActiveTrue().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsByName(String name) {
         return jpaRepository.existsByNameIgnoreCase(name);
     }
