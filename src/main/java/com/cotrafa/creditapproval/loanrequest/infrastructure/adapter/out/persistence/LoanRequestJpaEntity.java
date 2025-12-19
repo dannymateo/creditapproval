@@ -5,6 +5,7 @@ import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatus
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
 import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,30 +22,43 @@ import java.util.UUID;
 public class LoanRequestJpaEntity extends Auditable {
 
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotNull(message = "Customer is mandatory")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private CustomerJpaEntity customer;
 
+    @NotNull(message = "Loan type is mandatory")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loan_type_id", nullable = false)
     private LoanTypeJpaEntity loanType;
 
-    @OneToMany(mappedBy = "loanRequest", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "loanRequest", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<LoanRequestStatusHistoryJpaEntity> statusHistory;
 
-    @Column(nullable = false, precision = 15, scale = 2, columnDefinition = "DECIMAL(15,2) CHECK (amount > 0)")
+    @NotNull(message = "Amount is mandatory")
+    @Positive(message = "Amount must be greater than zero")
+    @Digits(integer = 13, fraction = 2, message = "Amount format invalid")
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "annual_rate", nullable = false, columnDefinition = "FLOAT8 CHECK (annual_rate > 0)")
+    @NotNull(message = "Annual rate is mandatory")
+    @Positive(message = "Annual rate must be greater than zero")
+    @Column(name = "annual_rate", nullable = false)
     private Double annualRate;
 
-    @Column(name = "term_months", nullable = false, columnDefinition = "INTEGER CHECK (term_months > 0)")
+    @NotNull(message = "Term months is mandatory")
+    @Positive(message = "Term months must be greater than zero")
+    @Min(value = 1, message = "Minimum term is 1 month")
+    @Column(name = "term_months", nullable = false)
     private Integer termMonths;
 
+
+    /**
+     * Help to obtain the current state from the history.
+     */
     public String getCurrentStatusName() {
         if (statusHistory == null || statusHistory.isEmpty()) {
             return LoanRequestStatusConstants.PENDING_REVIEW;

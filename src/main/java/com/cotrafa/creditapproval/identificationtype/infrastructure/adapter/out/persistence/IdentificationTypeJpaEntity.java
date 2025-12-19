@@ -2,6 +2,9 @@ package com.cotrafa.creditapproval.identificationtype.infrastructure.adapter.out
 
 import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.UUID;
@@ -16,13 +19,16 @@ import java.util.UUID;
 public class IdentificationTypeJpaEntity extends Auditable {
 
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotBlank(message = "Identification type name is mandatory")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     @Column(unique = true, nullable = false, length = 50)
     private String name;
 
+    @NotNull(message = "Active status is mandatory")
+    @Builder.Default
     @Column(nullable = false)
-    private Boolean active;
+    private Boolean active = true;
 }
