@@ -14,6 +14,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +28,10 @@ public class EmailService {
     private String senderEmail;
 
     @Async
-    public void send(String to, String subject, EmailTemplateDTO templateDto) {
+    public void send(String to, String subject, EmailTemplateDTO templateDto,
+                     String templateName, Map<String, Object> extraVariables) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-
             MimeMessageHelper helper = new MimeMessageHelper(
                     message,
                     MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
@@ -38,6 +39,7 @@ public class EmailService {
             );
 
             Context context = new Context();
+
             context.setVariable("title", templateDto.getTitle());
             context.setVariable("subtitle", templateDto.getSubtitle());
             context.setVariable("banner", templateDto.getBanner());
@@ -46,7 +48,12 @@ public class EmailService {
             context.setVariable("action", templateDto.getAction());
             context.setVariable("footer", templateDto.getFooter());
 
-            String htmlBody = templateEngine.process("email", context);
+            if (extraVariables != null) {
+                for (Map.Entry<String, Object> entry : extraVariables.entrySet()) {
+                    context.setVariable(entry.getKey(), entry.getValue());
+                }
+            }
+            String htmlBody = templateEngine.process(templateName, context);
 
             helper.setTo(to);
             helper.setSubject(subject);
@@ -56,7 +63,11 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            return;
+            log.error("Error sending email: {}", e.getMessage());
         }
+    }
+    @Async
+    public void send(String to, String subject, EmailTemplateDTO templateDto) {
+        this.send(to, subject, templateDto, "email", null);
     }
 }
