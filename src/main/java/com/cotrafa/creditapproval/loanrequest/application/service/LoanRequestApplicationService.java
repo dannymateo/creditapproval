@@ -7,6 +7,7 @@ import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHist
 import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
 import com.cotrafa.creditapproval.loanrequest.domain.model.NotificationData;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.CreateLoanRequestUseCase;
+import com.cotrafa.creditapproval.loanrequest.domain.port.in.GetLoanRequestUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.UpdateLoanRequestStatusUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.port.out.NotificationPort;
 import com.cotrafa.creditapproval.loanrequest.domain.port.out.LoanRequestRepositoryPort;
@@ -14,6 +15,8 @@ import com.cotrafa.creditapproval.loanrequeststatus.domain.model.LoanRequestStat
 import com.cotrafa.creditapproval.loanrequeststatus.domain.port.in.GetLoanRequestStatusUseCase;
 import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
 import com.cotrafa.creditapproval.loantype.domain.port.in.GetLoanTypeUseCase;
+import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
+import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.BadRequestException;
 import com.cotrafa.creditapproval.shared.infrastructure.web.exeption.custom.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class LoanRequestApplicationService implements CreateLoanRequestUseCase, UpdateLoanRequestStatusUseCase {
+public class LoanRequestApplicationService implements CreateLoanRequestUseCase, UpdateLoanRequestStatusUseCase, GetLoanRequestUseCase {
 
     private final LoanRequestRepositoryPort repositoryPort;
     private final GetLoanTypeUseCase loanTypeUseCase;
@@ -122,5 +125,10 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
                 .amount(request.getAmount())
                 .requestId(request.getId().toString())
                 .build();
+    }
+
+    @Override
+    public PaginatedResult<LoanRequest> getAll(PaginationCriteria criteria) {
+        return repositoryPort.findAll(criteria);
     }
 }

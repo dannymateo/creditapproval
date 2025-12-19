@@ -56,12 +56,12 @@ public class LoanTypeJpaAdapter implements LoanTypeRepository {
             entityPage = jpaRepository.findAll(pageable);
         }
 
-        List<LoanType> domainIdentificationTypes = entityPage.getContent().stream()
+        List<LoanType> domainLoandTypes = entityPage.getContent().stream()
                 .map(mapper::toDomain)
                 .toList();
 
         return new PaginatedResult<>(
-                domainIdentificationTypes,
+                domainLoandTypes,
                 entityPage.getNumber(),
                 entityPage.getSize(),
                 entityPage.getTotalElements(),

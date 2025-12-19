@@ -21,6 +21,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, data, null, 200);
     }
 
+    public static <T> ApiResponse<T> success(T data, int statusCode) {
+        return new ApiResponse<>(true, data, null, statusCode);
+    }
+
     // Static factory method for ERROR responses
     public static <T> ApiResponse<T> error(String message, int statusCode) {
         return new ApiResponse<>(false, null, message, statusCode);

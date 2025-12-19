@@ -2,13 +2,12 @@ package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persis
 
 import com.cotrafa.creditapproval.customer.infrastructure.adapter.out.persistence.CustomerJpaEntity;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
-import com.cotrafa.creditapproval.role.infrastructure.adapter.out.persistence.RoleJpaEntity;
 import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +32,9 @@ public class LoanRequestJpaEntity extends Auditable {
     @JoinColumn(name = "loan_type_id", nullable = false)
     private LoanTypeJpaEntity loanType;
 
+    @OneToMany(mappedBy = "loanRequest", fetch = FetchType.LAZY)
+    private List<LoanRequestStatusHistoryJpaEntity> statusHistory;
+
     @Column(nullable = false, precision = 15, scale = 2, columnDefinition = "DECIMAL(15,2) CHECK (amount > 0)")
     private BigDecimal amount;
 
@@ -41,4 +43,15 @@ public class LoanRequestJpaEntity extends Auditable {
 
     @Column(name = "term_months", nullable = false, columnDefinition = "INTEGER CHECK (term_months > 0)")
     private Integer termMonths;
+
+    public String getCurrentStatusName() {
+        if (statusHistory == null || statusHistory.isEmpty()) {
+            return "PENDIENTE";
+        }
+        return statusHistory.stream()
+                .filter(h -> h.getCurrent() != null && h.getCurrent())
+                .findFirst()
+                .map(h -> h.getLoanRequestStatus().getName())
+                .orElse("PENDIENTE");
+    }
 }

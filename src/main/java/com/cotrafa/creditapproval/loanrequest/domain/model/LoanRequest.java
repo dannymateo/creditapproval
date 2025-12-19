@@ -19,4 +19,10 @@ public class LoanRequest {
     private Double annualRate;
     private Integer termMonths;
     private LocalDateTime createdAt;
+
+    private String customerName;
+    private String customerEmail;
+    private BigDecimal customerSalary;
+    private String loanTypeName;
+    private String currentStatus;
 }

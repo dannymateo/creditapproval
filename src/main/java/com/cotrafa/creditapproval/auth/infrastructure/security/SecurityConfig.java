@@ -37,51 +37,52 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Custom 401 JSON
                 .authorizeHttpRequests(auth -> auth
                         // Public
-                        .requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/restore-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/change-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh-token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/customer").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/sign-in").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/restore-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/change-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh-token").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/customer").permitAll()
 
                         // Protected
-                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
 
                         // User module
-                        .requestMatchers(HttpMethod.GET, "/api/user/**").hasAuthority("USER_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/user/**").hasAuthority("USER_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/user/**").hasAuthority("USER_UPDATE")
-                        .requestMatchers(HttpMethod.PATCH, "/api/user/*/reset-password").hasAuthority("USER_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasAuthority("USER_DELETE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/**").hasAuthority("USER_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user/**").hasAuthority("USER_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/user/**").hasAuthority("USER_UPDATE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/v1/user/*/reset-password").hasAuthority("USER_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/**").hasAuthority("USER_DELETE")
 
                         // Entity module
-                        .requestMatchers(HttpMethod.GET, "/api/system-entities").hasAuthority("ROLE_READ")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/system-entities").hasAuthority("ROLE_READ")
 
                         // Role module
-                        .requestMatchers(HttpMethod.GET, "/api/role/active").hasAnyAuthority("USER_CREATE", "USER_UPDATE")                        .requestMatchers(HttpMethod.GET, "/api/role/**").hasAuthority("ROLE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/role/**").hasAuthority("ROLE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/role/**").hasAuthority("ROLE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/role/**").hasAuthority("ROLE_DELETE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/role/active").hasAnyAuthority("USER_CREATE", "USER_UPDATE")                        .requestMatchers(HttpMethod.GET, "/api/v1/role/**").hasAuthority("ROLE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/role/**").hasAuthority("ROLE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/role/**").hasAuthority("ROLE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/role/**").hasAuthority("ROLE_DELETE")
 
                         // Identification type module
-                        .requestMatchers(HttpMethod.GET, "/api/identification-type/active").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_DELETE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/identification-type/active").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_DELETE")
 
                         // Loan type module
-                        .requestMatchers(HttpMethod.GET, "/api/loan-type/active").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/loan-type").hasAuthority("LOAN_TYPE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/loan-type/**").hasAuthority("LOAN_TYPE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/loan-type/**").hasAuthority("LOAN_TYPE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/loan-type/**").hasAuthority("LOAN_TYPE_DELETE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/loan-type/active").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/loan-type").hasAuthority("LOAN_TYPE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/loan-type/**").hasAuthority("LOAN_TYPE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/loan-type/**").hasAuthority("LOAN_TYPE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/loan-type/**").hasAuthority("LOAN_TYPE_DELETE")
 
                         // Loan request status module
-                        .requestMatchers(HttpMethod.GET, "/api/loan-request-status").hasAnyAuthority("LOAN_REQUEST_READ", "LOAN_REQUEST_UPDATE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/loan-request-status").hasAnyAuthority("LOAN_REQUEST_READ", "LOAN_REQUEST_UPDATE")
 
                         // Loan request module
-                        .requestMatchers(HttpMethod.POST, "/api/loan-request").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/loan-request/*/status").hasAnyAuthority("LOAN_REQUEST_UPDATE")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/loan-request").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/loan-request/**").hasAnyAuthority("LOAN_REQUEST_READ")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/loan-request/*/status").hasAnyAuthority("LOAN_REQUEST_UPDATE")
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()

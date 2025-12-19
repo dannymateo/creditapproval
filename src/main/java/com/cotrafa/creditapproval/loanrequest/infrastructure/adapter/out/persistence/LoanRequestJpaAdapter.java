@@ -5,10 +5,20 @@ import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
 import com.cotrafa.creditapproval.loanrequest.domain.port.out.LoanRequestRepositoryPort;
 import com.cotrafa.creditapproval.loanrequeststatus.infrastructure.adapter.out.persistence.LoanRequestStatusJpaRepository;
+import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
+import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
+import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
+import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +36,39 @@ public class LoanRequestJpaAdapter implements LoanRequestRepositoryPort {
         LoanRequestJpaEntity entity = mapper.toEntity(loanRequest);
         LoanRequestJpaEntity savedEntity = jpaRepository.saveAndFlush(entity);
         return mapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public PaginatedResult<LoanRequest> findAll(PaginationCriteria criteria) {
+
+        Pageable pageable = PageRequest.of(
+                criteria.getPage(),
+                criteria.getSize(),
+                Sort.by("createdAt")
+        );
+
+        Page<LoanRequestJpaEntity> entityPage;
+        String searchTerm = criteria.getSearch();
+
+        if (StringUtils.hasText(searchTerm)) {
+            entityPage = jpaRepository.findByCurrentStatusName(
+                    searchTerm, pageable
+            );
+        } else {
+            entityPage = jpaRepository.findAll(pageable);
+        }
+
+        List<LoanRequest> domainLoandTypes = entityPage.getContent().stream()
+                .map(mapper::toDomain)
+                .toList();
+
+        return new PaginatedResult<>(
+                domainLoandTypes,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements(),
+                entityPage.getTotalPages()
+        );
     }
 
     @Override
