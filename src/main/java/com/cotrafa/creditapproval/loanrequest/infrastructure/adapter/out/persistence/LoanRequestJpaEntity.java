@@ -1,6 +1,7 @@
 package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persistence;
 
 import com.cotrafa.creditapproval.customer.infrastructure.adapter.out.persistence.CustomerJpaEntity;
+import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
 import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
@@ -46,12 +47,12 @@ public class LoanRequestJpaEntity extends Auditable {
 
     public String getCurrentStatusName() {
         if (statusHistory == null || statusHistory.isEmpty()) {
-            return "PENDIENTE";
+            return LoanRequestStatusConstants.PENDING_REVIEW;
         }
         return statusHistory.stream()
                 .filter(h -> h.getCurrent() != null && h.getCurrent())
                 .findFirst()
                 .map(h -> h.getLoanRequestStatus().getName())
-                .orElse("PENDIENTE");
+                .orElse(LoanRequestStatusConstants.PENDING_REVIEW);
     }
 }
