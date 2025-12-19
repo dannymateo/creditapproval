@@ -29,62 +29,68 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Use custom CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Custom 401 JSON
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
-                        // Public
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/sign-in").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/restore-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/change-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh-token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/customer").permitAll()
+                        // --- PUBLIC ENDPOINTS ---
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/auth/sign-in",
+                                "/api/v1/auth/restore-password",
+                                "/api/v1/auth/change-password",
+                                "/api/v1/auth/refresh-token",
+                                "/api/v1/customer").permitAll()
 
-                        // Protected
+                        // Public endpoint for the registration form to load document types
+                        .requestMatchers(HttpMethod.GET, "/api/v1/identification-type/active").permitAll()
+
+                        // --- PROTECTED AUTH ---
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
 
-                        // User module
-                        .requestMatchers(HttpMethod.GET, "/api/v1/user/**").hasAuthority("USER_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/user/**").hasAuthority("USER_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/user/**").hasAuthority("USER_UPDATE")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/v1/user/*/reset-password").hasAuthority("USER_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/**").hasAuthority("USER_DELETE")
+                        // --- USER MODULE ---
+                        // List and search by ID
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user", "/api/v1/user/*").hasAuthority("USER_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user").hasAuthority("USER_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/user/*").hasAuthority("USER_UPDATE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/user/*/reset-password").hasAuthority("USER_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/*").hasAuthority("USER_DELETE")
 
-                        // Entity module
-                        .requestMatchers(HttpMethod.GET, "/api/v1/system-entities").hasAuthority("ROLE_READ")
+                        // --- ROLE MODULE ---
+                        .requestMatchers(HttpMethod.GET, "/api/v1/role/active").hasAnyAuthority("USER_CREATE", "USER_UPDATE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/role", "/api/v1/role/*").hasAuthority("ROLE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/role").hasAuthority("ROLE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/role/*").hasAuthority("ROLE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/role/*").hasAuthority("ROLE_DELETE")
 
-                        // Role module
-                        .requestMatchers(HttpMethod.GET, "/api/v1/role/active").hasAnyAuthority("USER_CREATE", "USER_UPDATE")                        .requestMatchers(HttpMethod.GET, "/api/v1/role/**").hasAuthority("ROLE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/role/**").hasAuthority("ROLE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/role/**").hasAuthority("ROLE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/role/**").hasAuthority("ROLE_DELETE")
+                        // --- IDENTIFICATION TYPE MODULE ---
+                        .requestMatchers(HttpMethod.GET, "/api/v1/identification-type").hasAuthority("IDENTIFICATION_TYPE_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/identification-type").hasAuthority("IDENTIFICATION_TYPE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/identification-type/*").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/identification-type/*").hasAuthority("IDENTIFICATION_TYPE_DELETE")
 
-                        // Identification type module
-                        .requestMatchers(HttpMethod.GET, "/api/v1/identification-type/active").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/identification-type/**").hasAuthority("IDENTIFICATION_TYPE_DELETE")
-
-                        // Loan type module
+                        // --- LOAN TYPE MODULE ---
                         .requestMatchers(HttpMethod.GET, "/api/v1/loan-type/active").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/loan-type").hasAuthority("LOAN_TYPE_READ")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/loan-type/**").hasAuthority("LOAN_TYPE_CREATE")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/loan-type/**").hasAuthority("LOAN_TYPE_UPDATE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/loan-type/**").hasAuthority("LOAN_TYPE_DELETE")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/loan-type").hasAuthority("LOAN_TYPE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/loan-type/*").hasAuthority("LOAN_TYPE_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/loan-type/*").hasAuthority("LOAN_TYPE_DELETE")
 
-                        // Loan request status module
+                        // --- LOAN REQUEST MODULE ---
+                        // An authenticated customer creates their request
+                        .requestMatchers(HttpMethod.POST, "/api/v1/loan-request").authenticated()
+                        // Only analysts read the list or the details
+                        .requestMatchers(HttpMethod.GET, "/api/v1/loan-request", "/api/v1/loan-request/*").hasAuthority("LOAN_REQUEST_READ")
+                        // Only analysts change the state
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/loan-request/*/status").hasAuthority("LOAN_REQUEST_UPDATE")
+
+                        // State master for frontend selects
                         .requestMatchers(HttpMethod.GET, "/api/v1/loan-request-status").hasAnyAuthority("LOAN_REQUEST_READ", "LOAN_REQUEST_UPDATE")
 
-                        // Loan request module
-                        .requestMatchers(HttpMethod.POST, "/api/v1/loan-request").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/loan-request/**").hasAnyAuthority("LOAN_REQUEST_READ")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/loan-request/*/status").hasAnyAuthority("LOAN_REQUEST_UPDATE")
+                        // --- SYSTEM ---
+                        .requestMatchers(HttpMethod.GET, "/api/v1/system-entities").hasAuthority("ROLE_READ")
 
-                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
