@@ -56,7 +56,8 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
             statusIdToApply = repositoryPort.callAutomaticValidationProcedure(
                     savedRequest.getCustomerId(),
                     savedRequest.getLoanTypeId(),
-                    savedRequest.getAmount());
+                    savedRequest.getAmount(),
+                    savedRequest.getTermMonths());
             observation = "Automatic system validation";
         } else {
             statusIdToApply = statusUseCase.getByName(LoanRequestStatusConstants.PENDING_REVIEW).getId();

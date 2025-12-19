@@ -1,10 +1,8 @@
 package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persistence;
 
-import com.cotrafa.creditapproval.loanrequeststatus.domain.constants.LoanRequestStatusConstants;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
 import com.cotrafa.creditapproval.loanrequest.domain.port.out.LoanRequestRepositoryPort;
-import com.cotrafa.creditapproval.loanrequeststatus.infrastructure.adapter.out.persistence.LoanRequestStatusJpaRepository;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
 import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ public class LoanRequestJpaAdapter implements LoanRequestRepositoryPort {
     private final LoanRequestJpaRepository jpaRepository;
     private final LoanRequestStatusHistoryJpaRepository historyRepository;
     private final LoanRequestPersistenceMapper mapper;
-    private final LoanRequestStatusJpaRepository statusJpaRepository;
+    private final LoanRequestValidationService validationService;
 
     @Override
     public LoanRequest save(LoanRequest loanRequest) {
@@ -91,14 +89,7 @@ public class LoanRequestJpaAdapter implements LoanRequestRepositoryPort {
     }
 
     @Override
-    public UUID callAutomaticValidationProcedure(UUID customerId, UUID loanTypeId, BigDecimal amount) {
-        // SIMULATION: If the amount is <= 5M, approve; otherwise, manual review.
-        String statusToFind = (amount.compareTo(new BigDecimal("5000000")) <= 0)
-                ? LoanRequestStatusConstants.APPROVED
-                : LoanRequestStatusConstants.PENDING_REVIEW;
-
-        return statusJpaRepository.findByNameIgnoreCase(statusToFind)
-                .orElseThrow(() -> new RuntimeException("Status not found in catalog"))
-                .getId();
+    public UUID callAutomaticValidationProcedure(UUID customerId, UUID loanTypeId, BigDecimal amount, Integer termMonths) {
+        return validationService.validateLoanRequest(customerId, loanTypeId, amount, termMonths);
     }
 }

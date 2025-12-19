@@ -16,5 +16,5 @@ public interface LoanRequestRepositoryPort {
     void saveHistory(LoanRequestStatusHistory history);
     Optional<LoanRequestStatusHistory> findCurrentStatusByRequestId(UUID requestId);
     void markPreviousStatusesAsInactive(UUID loanRequestId);
-    UUID callAutomaticValidationProcedure(UUID customerId, UUID loanTypeId, BigDecimal amount);
+    UUID callAutomaticValidationProcedure(UUID customerId, UUID loanTypeId, BigDecimal amount, Integer termMonths);
 }
