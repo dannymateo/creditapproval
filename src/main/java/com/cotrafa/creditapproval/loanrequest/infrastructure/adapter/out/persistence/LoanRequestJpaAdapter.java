@@ -1,12 +1,10 @@
 package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persistence;
 
-import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
+import com.cotrafa.creditapproval.loanrequeststatus.domain.constants.LoanRequestStatusConstants;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
 import com.cotrafa.creditapproval.loanrequest.domain.port.out.LoanRequestRepositoryPort;
 import com.cotrafa.creditapproval.loanrequeststatus.infrastructure.adapter.out.persistence.LoanRequestStatusJpaRepository;
-import com.cotrafa.creditapproval.loantype.domain.model.LoanType;
-import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
 import com.cotrafa.creditapproval.shared.domain.model.PaginatedResult;
 import com.cotrafa.creditapproval.shared.domain.model.PaginationCriteria;
 import lombok.RequiredArgsConstructor;

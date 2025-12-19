@@ -1,4 +1,4 @@
-package com.cotrafa.creditapproval.loanrequest.domain.constants;
+package com.cotrafa.creditapproval.loanrequeststatus.domain.constants;
 
 public final class LoanRequestStatusConstants {
     public static final String PENDING_REVIEW = "PENDIENTE_REVISION";

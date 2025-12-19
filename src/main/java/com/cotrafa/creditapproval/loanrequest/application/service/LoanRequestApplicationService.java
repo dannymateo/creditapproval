@@ -5,7 +5,7 @@ import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
 import com.cotrafa.creditapproval.loan.domain.port.in.CreateLoanUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
-import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
+import com.cotrafa.creditapproval.loanrequeststatus.domain.constants.LoanRequestStatusConstants;
 import com.cotrafa.creditapproval.loanrequest.domain.model.NotificationData;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.CreateLoanRequestUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.GetLoanRequestUseCase;

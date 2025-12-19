@@ -1,7 +1,7 @@
 package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persistence;
 
 import com.cotrafa.creditapproval.customer.infrastructure.adapter.out.persistence.CustomerJpaEntity;
-import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
+import com.cotrafa.creditapproval.loanrequeststatus.domain.constants.LoanRequestStatusConstants;
 import com.cotrafa.creditapproval.loantype.infrastructure.adapter.out.persistence.LoanTypeJpaEntity;
 import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
