@@ -3,6 +3,7 @@ package com.cotrafa.creditapproval.loan.domain.model;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
