@@ -25,8 +25,4 @@ public class LoanStatusJpaEntity extends Auditable {
     @Size(max = 50)
     @Column(unique = true, nullable = false, length = 50)
     private String name;
-
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean active = true;
 }

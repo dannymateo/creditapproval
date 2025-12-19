@@ -1,6 +1,6 @@
-package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.out.persistence;
+package com.cotrafa.creditapproval.loan.infrastructure.adapter.out.persistence;
 
-import com.cotrafa.creditapproval.loanrequeststatus.infrastructure.adapter.out.persistence.LoanRequestStatusJpaEntity;
+import com.cotrafa.creditapproval.loanstatus.infrastructure.adapter.out.persistence.LoanStatusJpaEntity;
 import com.cotrafa.creditapproval.shared.infrastructure.persistence.entity.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -12,27 +12,26 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "loan_requests_statuses_history")
+@Table(name = "loan_statuses_history")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoanRequestStatusHistoryJpaEntity extends Auditable {
+public class LoanStatusHistoryJpaEntity extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @NotNull(message = "Loan request reference is mandatory")
+    @NotNull(message = "Loan reference is mandatory")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "loan_request_id", nullable = false, updatable = false)
-    private LoanRequestJpaEntity loanRequest;
+    @JoinColumn(name = "loan_id", nullable = false)
+    private LoanJpaEntity loan;
 
     @NotNull(message = "Status reference is mandatory")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "loan_request_status_id", nullable = false, updatable = false)
-    private LoanRequestStatusJpaEntity loanRequestStatus;
+    @JoinColumn(name = "loan_status_id", nullable = false)
+    private LoanStatusJpaEntity loanStatus;
 
     @NotNull
     @PastOrPresent(message = "Assignment date cannot be in the future")

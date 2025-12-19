@@ -32,11 +32,11 @@ import java.util.UUID;
 public class LoanRequestApplicationService implements CreateLoanRequestUseCase, UpdateLoanRequestStatusUseCase, GetLoanRequestUseCase {
 
     private final LoanRequestRepositoryPort repositoryPort;
+    private final NotificationPort notificationPort;
     private final GetLoanTypeUseCase loanTypeUseCase;
     private final GetLoanRequestStatusUseCase statusUseCase;
     private final GetCustomerUseCase customerUseCase;
     private final CreateLoanUseCase createLoanUseCase;
-    private final NotificationPort notificationPort;
 
     @Override
     @Transactional
