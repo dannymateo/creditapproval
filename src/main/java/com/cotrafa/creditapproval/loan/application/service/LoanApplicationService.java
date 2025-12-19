@@ -1,5 +1,7 @@
 package com.cotrafa.creditapproval.loan.application.service;
 
+import com.cotrafa.creditapproval.customer.domain.model.Customer;
+import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
 import com.cotrafa.creditapproval.loan.domain.model.Loan;
 import com.cotrafa.creditapproval.loan.domain.model.LoanInstallment;
 import com.cotrafa.creditapproval.loan.domain.model.Notification;
@@ -27,12 +29,15 @@ public class LoanApplicationService implements CreateLoanUseCase {
     private final LoanRepositoryPort loanRepositoryPort;
     private final LoanRequestRepositoryPort loanRequestRepositoryPort;
     private final NotificationPort notificationPort;
+    private final GetCustomerUseCase customerUseCase;
 
     @Override
     @Transactional
     public Loan createFromRequest(UUID loanRequestId) {
         LoanRequest request = loanRequestRepositoryPort.findById(loanRequestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan request not found: " + loanRequestId));
+
+        Customer customer = customerUseCase.getById(request.getCustomerId());
 
         List<LoanInstallment> installments = AmortizationService.calculatePlan(
                 request.getAmount(),
@@ -52,19 +57,21 @@ public class LoanApplicationService implements CreateLoanUseCase {
 
         Loan savedLoan = loanRepositoryPort.save(loan);
 
-        sendApprovalNotification(request, installments);
+        sendApprovalNotification(request, customer, installments);
 
         return savedLoan;
     }
 
-    private void sendApprovalNotification(LoanRequest request, List<LoanInstallment> installments) {
+    private void sendApprovalNotification(LoanRequest request, Customer customer, List<LoanInstallment> installments) {
         Map<String, Object> variables = new HashMap<>();
-        variables.put("customerName", request.getCustomerName());
+        variables.put("customerName", customer.getFirstName() + " " + customer.getLastName());
         variables.put("amount", request.getAmount());
+        variables.put("annualRate", request.getAnnualRate());
+        variables.put("term", request.getTermMonths());
         variables.put("installments", installments);
 
         Notification notification = Notification.builder()
-                .to(request.getCustomerEmail())
+                .to(customer.getEmail())
                 .subject("¡Tu crédito ha sido desembolsado! - Cotrafa")
                 .template("loan-approval-template")
                 .variables(variables)

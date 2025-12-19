@@ -2,6 +2,7 @@ package com.cotrafa.creditapproval.loanrequest.application.service;
 
 import com.cotrafa.creditapproval.customer.domain.model.Customer;
 import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
+import com.cotrafa.creditapproval.loan.domain.port.in.CreateLoanUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
 import com.cotrafa.creditapproval.loanrequest.domain.constants.LoanRequestStatusConstants;
@@ -34,6 +35,7 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
     private final GetLoanTypeUseCase loanTypeUseCase;
     private final GetLoanRequestStatusUseCase statusUseCase;
     private final GetCustomerUseCase customerUseCase;
+    private final CreateLoanUseCase createLoanUseCase;
     private final NotificationPort notificationPort;
 
     @Override
@@ -106,7 +108,7 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
         switch (status.getName()) {
             case LoanRequestStatusConstants.APPROVED -> {
                 notificationPort.sendApprovedEmail(notificationData);
-                // TODO: Inyectar LoanService y llamar: loanService.disburse(request, customer);
+                createLoanUseCase.createFromRequest(request.getId());
             }
             case LoanRequestStatusConstants.REJECTED -> {
                 notificationPort.sendRejectedEmail(notificationData);
