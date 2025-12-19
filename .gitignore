@@ -31,3 +31,49 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+*.env
+
+### Logs ###
+*.log
+logs/
+*.log.*
+*.gz
+
+### Security & Secrets ###
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.truststore
+secrets/
+certificates/
+
+### Database ###
+*.db
+*.sql.backup
+*.dump
+backup/
+backups/
+
+### Docker ###
+docker-compose.override.yml
+.dockerignore.local
+
+### OS ###
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+### Temporary Files ###
+*.tmp
+*.temp
+tmp/
+temp/
