@@ -1,11 +1,15 @@
 package com.cotrafa.creditapproval.loan.infrastructure.adapter.out.persistence;
 
 import com.cotrafa.creditapproval.loan.domain.model.Loan;
+import com.cotrafa.creditapproval.loan.domain.model.LoanReport;
 import com.cotrafa.creditapproval.loan.domain.model.LoanStatusHistory;
 import com.cotrafa.creditapproval.loan.domain.port.out.LoanRepositoryPort;
+import com.cotrafa.creditapproval.loanstatus.domain.constants.LoanStatusConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -33,5 +37,18 @@ public class LoanJpaAdapter implements LoanRepositoryPort {
     @Override
     public void markPreviousStatusesAsInactive(UUID loanId) {
         historyRepository.markAllAsInactiveByLoanId(loanId);
+    }
+
+    @Override
+    public LoanReport getApprovedLoansSummary() {
+        Map<String, Object> rawData = repository.getRawReportData(LoanStatusConstants.ACTIVE);
+
+        BigDecimal totalAmount = (BigDecimal) rawData.getOrDefault("totalAmountApproved", BigDecimal.ZERO);
+        Long totalCount = ((Number) rawData.getOrDefault("totalLoansCount", 0)).longValue();
+
+        return LoanReport.builder()
+                .totalAmountApproved(totalAmount != null ? totalAmount : BigDecimal.ZERO)
+                .totalLoansCount(totalCount)
+                .build();
     }
 }

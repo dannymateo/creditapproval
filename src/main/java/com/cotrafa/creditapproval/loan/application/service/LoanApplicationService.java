@@ -4,6 +4,7 @@ import com.cotrafa.creditapproval.customer.domain.model.Customer;
 import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
 import com.cotrafa.creditapproval.loan.domain.model.*;
 import com.cotrafa.creditapproval.loan.domain.port.in.CreateLoanUseCase;
+import com.cotrafa.creditapproval.loan.domain.port.in.GetLoanReportUseCase;
 import com.cotrafa.creditapproval.loan.domain.port.out.LoanRepositoryPort;
 import com.cotrafa.creditapproval.loan.domain.port.out.NotificationPort;
 import com.cotrafa.creditapproval.loan.domain.service.AmortizationService;
@@ -26,7 +27,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class LoanApplicationService implements CreateLoanUseCase {
+public class LoanApplicationService implements CreateLoanUseCase, GetLoanReportUseCase {
 
     private final LoanRepositoryPort loanRepositoryPort;
     private final LoanRequestRepositoryPort loanRequestRepositoryPort;
@@ -66,6 +67,12 @@ public class LoanApplicationService implements CreateLoanUseCase {
         sendApprovalNotification(request, customer, installments);
 
         return savedLoan;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LoanReport getApprovedLoansReport() {
+        return loanRepositoryPort.getApprovedLoansSummary();
     }
 
     private void processStatusTransition(Loan loan, UUID statusId, String observation) {

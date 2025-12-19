@@ -88,6 +88,9 @@ public class SecurityConfig {
                         // State master for frontend selects
                         .requestMatchers(HttpMethod.GET, "/api/v1/loan-request-status").hasAnyAuthority("LOAN_REQUEST_READ", "LOAN_REQUEST_UPDATE")
 
+                        // --- LOAN MODULE ---
+                        .requestMatchers(HttpMethod.GET, "/api/v1/loan/**").hasAnyAuthority("LOAN_READ")
+
                         // --- SYSTEM ---
                         .requestMatchers(HttpMethod.GET, "/api/v1/system-entities").hasAuthority("ROLE_READ")
 
