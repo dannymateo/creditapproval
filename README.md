@@ -43,6 +43,7 @@ El sistema implementa arquitectura hexagonal, control de acceso basado en roles 
 | 2. Registrar solicitudes | `POST /api/v1/loan-request` | Validación de cliente y tipo, historial de estados | Completo |
 | 3. Consultar solicitudes | `GET /api/v1/loan-request` | Paginación, ordenamiento, filtros, búsqueda | Completo |
 | 4. Aprobación manual | `PATCH /api/v1/loan-request/{id}/status` | Notificación real por email, observaciones | Completo |
+| Pruebas Unitarias | Requeridas | JUnit 5 configurado | Completado|
 | 5. Validación automática | Stored Procedure | Evaluación 35%, múltiples préstamos activos | Completo |
 | 6. Plan de pagos | Sistema francés | Cálculo preciso con BigDecimal, ajuste última cuota | Completo |
 | 7. Reportes | `GET /api/v1/loans/report/total-approved` | Consolidado de montos aprobados | Completo |

@@ -1,31 +1,26 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
     container_name: creditapproval-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-creditapproval}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_DB: ${DB_NAME:-creditapproval}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # NOTE: init.sql must be run manually after app starts
-      # - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "5432:5432"
     networks:
       - creditapproval-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-creditapproval}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME:-creditapproval}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Spring Boot Application
   app:
     build:
       context: .
@@ -36,35 +31,27 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      # Database Configuration
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-creditapproval}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      
-      # JPA/Hibernate Configuration
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_DDL_AUTO:-update}
-      SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL:-false}
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
-      
-      # Application Configuration
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-      SERVER_PORT: 8080
-      
-      # JWT Configuration
-      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-this-in-production}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
-      
-      # Email Configuration
-      SPRING_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
-      SPRING_MAIL_PORT: ${MAIL_PORT:-587}
-      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:-}
-      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:-}
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
-      
-      # JVM Options
-      JAVA_OPTS: ${JAVA_OPTS:--Xms512m -Xmx1024m}
+      CLIENT_URL: ${CLIENT_URL}
+
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-creditapproval}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL}
+      SPRING_JPA_DDL_AUTO: ${SPRING_JPA_DDL_AUTO}
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+      JWT_ACCESS_MINUTES: ${JWT_ACCESS_MINUTES}
+      JWT_REFRESH_DAYS: ${JWT_REFRESH_DAYS}
+
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+      APP_PORT: 8080
+      SPRING_PROFILES_ACTIVE: prod
     ports:
       - "${APP_PORT:-8080}:8080"
     networks:
@@ -74,9 +61,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
-    volumes:
-      - app_logs:/app/logs
+      start_period: 40s
 
 networks:
   creditapproval-network:
@@ -84,7 +69,3 @@ networks:
 
 volumes:
   postgres_data:
-    driver: local
-  app_logs:
-    driver: local
-

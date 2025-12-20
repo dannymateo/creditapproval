@@ -1,40 +1,33 @@
-# Build stage
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
-
+# Stage 1: Construction
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-# Copy Maven configuration files
+# Leverage layer caching for dependencies
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
-
-# Download dependencies (cached if pom.xml doesn't change)
 RUN mvn dependency:go-offline -B
 
-# Copy source code
+# Copy code and build
 COPY src ./src
-
-# Compile and package application
 RUN mvn clean package -DskipTests
 
-# Final image stage
+# Stage 2: Execution (Runtime)
 FROM eclipse-temurin:17-jre-alpine
-
 WORKDIR /app
 
-# Create non-root user for security
+# Install wget for Docker healthcheck
+RUN apk add --no-cache wget
+
+# Create a system user to avoid running as root
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
-# Copy JAR from build stage
+# Copy the generated JAR
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose application port
+# Expose inner port
 EXPOSE 8080
 
-# Default environment variables
-ENV JAVA_OPTS="-Xms256m -Xmx512m"
+# Optimized memory configuration for containers
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
 
-# Start command
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
-
