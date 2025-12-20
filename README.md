@@ -281,7 +281,7 @@ MAIL_PASSWORD=your_app_password
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-3. **Levantar los servicios**
+3. **Levantar los servicios** Ejecuta el siguiente comando. Docker descargará la imagen pre-construida y configurará la base de datos automáticamente:
 ```bash
 docker-compose up -d
 ```
