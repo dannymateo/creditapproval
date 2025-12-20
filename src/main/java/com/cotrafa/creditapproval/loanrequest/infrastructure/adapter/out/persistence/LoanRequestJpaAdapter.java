@@ -91,4 +91,13 @@ public class LoanRequestJpaAdapter implements LoanRequestRepositoryPort {
     public UUID callAutomaticValidationProcedure(UUID customerId, UUID loanTypeId, BigDecimal amount, Integer termMonths) {
         return jpaRepository.callAutomaticValidationProcedure(customerId, loanTypeId, amount, termMonths);
     }
+
+    @Override
+    public List<LoanRequest> findByCustomerIdAndStatus(UUID customerId, String status) {
+        List<LoanRequestJpaEntity> entities = jpaRepository.findByCustomerIdAndStatusName(customerId, status);
+
+        return entities.stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

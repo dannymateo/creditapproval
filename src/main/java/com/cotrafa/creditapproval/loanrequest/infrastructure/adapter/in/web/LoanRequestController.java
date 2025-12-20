@@ -2,6 +2,7 @@ package com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.in.web;
 
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.CreateLoanRequestUseCase;
+import com.cotrafa.creditapproval.loanrequest.domain.port.in.GetAiAdviceUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.GetLoanRequestUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.UpdateLoanRequestStatusUseCase;
 import com.cotrafa.creditapproval.loanrequest.infrastructure.adapter.in.web.dto.CreateLoanRequestDTO;
@@ -48,6 +49,7 @@ public class LoanRequestController {
     private final CreateLoanRequestUseCase createUseCase;
     private final UpdateLoanRequestStatusUseCase updateStatusUseCase;
     private final GetLoanRequestUseCase getUseCase;
+    private final GetAiAdviceUseCase getAiAdviceUseCase;
     private final LoanRequestMapper loanRequestMapper;
     private final JwtUtil jwtUtil;
     private final PaginationWebMapper paginationMapper;
@@ -104,6 +106,46 @@ public class LoanRequestController {
 
         PaginatedResponseDTO<LoanRequestResponse> response = paginationMapper.toResponse(domainResult, loanRequestDtos);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(
+            summary = "Obtener asesoramiento de IA para una solicitud",
+            description = "Genera un análisis inteligente utilizando modelos de lenguaje (LLM) sobre la viabilidad de la solicitud. " +
+                    "El análisis considera el salario del cliente, el monto solicitado, el plazo y las reglas de riesgo de la cooperativa. " +
+                    "Proporciona una recomendación narrativa para apoyar la toma de decisiones de los analistas humanos.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "Asesoramiento de IA generado exitosamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(type = "string", example = "Basado en el salario de 4M y la cuota de 300k, el cliente tiene una capacidad holgada (25% ocupado)...")
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "No autenticado",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "La solicitud de crédito no existe",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "503",
+                    description = "El servicio de IA no está disponible temporalmente",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @GetMapping("/{id}/ai-advice")
+    public ResponseEntity<ApiResponse<String>> getAiAdvice(
+            @Parameter(description = "ID único de la solicitud de crédito a analizar", required = true)
+            @PathVariable UUID id) {
+        String advice = getAiAdviceUseCase.execute(id);
+        return ResponseEntity.ok(ApiResponse.success(advice));
     }
 
     @Operation(

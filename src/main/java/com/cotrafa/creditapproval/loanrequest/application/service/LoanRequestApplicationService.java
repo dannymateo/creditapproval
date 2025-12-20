@@ -5,6 +5,7 @@ import com.cotrafa.creditapproval.customer.domain.port.in.GetCustomerUseCase;
 import com.cotrafa.creditapproval.loan.domain.port.in.CreateLoanUseCase;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequest;
 import com.cotrafa.creditapproval.loanrequest.domain.model.LoanRequestStatusHistory;
+import com.cotrafa.creditapproval.loanrequest.domain.port.in.SearchLoanRequestsUseCase;
 import com.cotrafa.creditapproval.loanrequeststatus.domain.constants.LoanRequestStatusConstants;
 import com.cotrafa.creditapproval.loanrequest.domain.model.NotificationData;
 import com.cotrafa.creditapproval.loanrequest.domain.port.in.CreateLoanRequestUseCase;
@@ -25,11 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class LoanRequestApplicationService implements CreateLoanRequestUseCase, UpdateLoanRequestStatusUseCase, GetLoanRequestUseCase {
+public class LoanRequestApplicationService implements CreateLoanRequestUseCase, UpdateLoanRequestStatusUseCase, GetLoanRequestUseCase, SearchLoanRequestsUseCase {
 
     private final LoanRequestRepositoryPort repositoryPort;
     private final NotificationPort notificationPort;
@@ -133,5 +135,11 @@ public class LoanRequestApplicationService implements CreateLoanRequestUseCase, 
     @Override
     public PaginatedResult<LoanRequest> getAll(PaginationCriteria criteria) {
         return repositoryPort.findAll(criteria);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LoanRequest> searchByCustomerAndStatus(UUID customerId, String status) {
+        return repositoryPort.findByCustomerIdAndStatus(customerId, status);
     }
 }

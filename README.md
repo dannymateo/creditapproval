@@ -252,21 +252,32 @@ cd creditapproval
 Crear archivo `.env` en la raíz:
 
 ```env
-# Database
-POSTGRES_DB=creditapproval
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_PORT=5432
-
-# Application
+# --- SERVER CONFIGURATION ---
 APP_PORT=8080
-JWT_SECRET=your_secret_key_at_least_32_characters_long
+CLIENT_URL=http://localhost:3000
 
-# Email (opcional para notificaciones)
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
+# --- DATABASE CONFIGURATION ---
+DB_URL=jdbc:postgresql://host:port/database_name
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_db_password
+
+# --- JPA / HIBERNATE ---
+SPRING_JPA_SHOW_SQL=false
+SPRING_JPA_DDL_AUTO=none
+
+# --- SECURITY JWT ---
+# Generar una cadena aleatoria segura para el secret
+JWT_SECRET=your_super_secret_safe_key
+JWT_EXPIRATION_MS=86400000
+JWT_ACCESS_MINUTES=30
+JWT_REFRESH_DAYS=7
+
+# --- EMAIL CONFIGURATION ---
 MAIL_USERNAME=your_email@gmail.com
 MAIL_PASSWORD=your_app_password
+
+# --- OPENAI CONFIGURATION ---
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 3. **Levantar los servicios**
