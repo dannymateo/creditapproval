@@ -19,4 +19,11 @@ public class Customer {
     private String identificationNumber;
     private String email;
     private BigDecimal baseSalary;
+
+    public void validateIntegrity() {
+        if (baseSalary == null || baseSalary.compareTo(BigDecimal.ZERO) < 0
+                || baseSalary.compareTo(new BigDecimal("15000000")) > 0) {
+            throw new IllegalArgumentException("Salary must be between 0 and 15,000,000");
+        }
+    }
 }
