@@ -94,6 +94,16 @@ public class SecurityConfig {
                         // --- SYSTEM ---
                         .requestMatchers(HttpMethod.GET, "/api/v1/system-entities").hasAuthority("ROLE_READ")
 
+                        // --- SWAGGER/OPENAPI ---
+                        .requestMatchers(
+                                "/api-docs",
+                                "/api-docs/**",
+                                "/v3/api-docs/**",
+                                "/v1/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
