@@ -243,7 +243,7 @@ El sistema consta de 13 módulos principales con bounded contexts claros:
 
 1. **Clonar el repositorio**
 ```bash
-git clone <repository-url>
+git clone https://github.com/dannymateo/creditapproval
 cd creditapproval
 ```
 
