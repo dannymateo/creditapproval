@@ -40,7 +40,7 @@ public class UserJpaEntity extends Auditable {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String lastPassword;
 
     @Builder.Default
