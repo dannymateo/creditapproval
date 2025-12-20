@@ -14,4 +14,12 @@ public interface LoanRequestJpaRepository extends JpaRepository<LoanRequestJpaEn
             "JOIN lr.statusHistory h " +
             "WHERE h.current = true AND UPPER(h.loanRequestStatus.name) LIKE UPPER(CONCAT('%', :statusName, '%'))")
     Page<LoanRequestJpaEntity> findByCurrentStatusName(@Param("statusName") String statusName, Pageable pageable);
+
+    @Query(value = "CALL sp_validate_loan_request(:customerId, :loanTypeId, :amount, :termMonths)", nativeQuery = true)
+    UUID callAutomaticValidationProcedure(
+            @Param("customerId") UUID customerId,
+            @Param("loanTypeId") UUID loanTypeId,
+            @Param("amount") java.math.BigDecimal amount,
+            @Param("termMonths") Integer termMonths
+    );
 }

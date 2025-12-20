@@ -124,41 +124,108 @@ FROM system_entities e;
 
 
 
+-- ============================================================
+-- STORED PROCEDURE: Validación Automática de Préstamos
+-- ============================================================
+-- Implementa la lógica completa de validación automática de préstamos
+-- según las reglas de negocio establecidas:
+-- - Capacidad de endeudamiento del 35%
+-- - Validación de deuda actual del cliente
+-- - Regla de los 5 salarios para revisión manual
+-- ============================================================
+
 CREATE OR REPLACE PROCEDURE sp_validate_loan_request(
     IN p_customer_id UUID,
     IN p_loan_type_id UUID,
     IN p_amount NUMERIC,
     IN p_term_months INTEGER,
-    INOUT p_status_id UUID DEFAULT NULL
+    INOUT p_status_id UUID
 )
-    LANGUAGE plpgsql
+LANGUAGE plpgsql
 AS $$
 DECLARE
     v_base_salary NUMERIC;
     v_annual_rate FLOAT;
     v_monthly_rate FLOAT;
     v_monthly_installment NUMERIC;
-    v_indebtedness_capacity NUMERIC;
+    v_max_capacity NUMERIC;
+    v_current_debt NUMERIC := 0;
+    v_available_capacity NUMERIC;
     v_status_name VARCHAR(50);
+    v_loan_rec RECORD;
 BEGIN
-    SELECT base_salary INTO v_base_salary FROM customers WHERE id = p_customer_id;
-    SELECT annual_rate INTO v_annual_rate FROM loan_types WHERE id = p_loan_type_id;
+    -- 1. Obtener el salario base del cliente
+    SELECT base_salary INTO v_base_salary 
+    FROM customers 
+    WHERE id = p_customer_id;
+    
+    IF v_base_salary IS NULL THEN
+        RAISE EXCEPTION 'Cliente con ID % no encontrado', p_customer_id;
+    END IF;
 
+    -- 2. Obtener la tasa anual del tipo de préstamo
+    SELECT annual_rate INTO v_annual_rate 
+    FROM loan_types 
+    WHERE id = p_loan_type_id;
+    
+    IF v_annual_rate IS NULL THEN
+        RAISE EXCEPTION 'Tipo de préstamo con ID % no encontrado', p_loan_type_id;
+    END IF;
+
+    -- 3. Calcular la tasa mensual
     v_monthly_rate := (v_annual_rate / 100) / 12;
 
+    -- 4. Calcular la cuota mensual del nuevo préstamo (Fórmula de amortización francesa)
     IF v_monthly_rate > 0 THEN
-        v_monthly_installment := p_amount * (v_monthly_rate / (1 - POWER(1 + v_monthly_rate, -p_term_months)));
+        v_monthly_installment := p_amount * (v_monthly_rate * POWER(1 + v_monthly_rate, p_term_months)) 
+                                / (POWER(1 + v_monthly_rate, p_term_months) - 1);
     ELSE
         v_monthly_installment := p_amount / p_term_months;
     END IF;
 
-    v_indebtedness_capacity := v_base_salary * 0.35;
+    -- 5. Calcular la capacidad máxima de endeudamiento (35% del salario)
+    v_max_capacity := v_base_salary * 0.35;
 
-    -- Prioridad 1: Validar capacidad de pago
-    IF v_monthly_installment > v_indebtedness_capacity THEN
+    -- 6. Calcular la deuda mensual actual del cliente
+    -- Se suman las cuotas de todos los préstamos APROBADOS del cliente
+    FOR v_loan_rec IN (
+        SELECT l.amount, l.annual_rate, l.term_months
+        FROM loans l
+        INNER JOIN loan_request_status_history h ON h.loan_request_id = l.loan_request_id
+        INNER JOIN loan_request_statuses s ON s.id = h.status_id
+        WHERE l.customer_id = p_customer_id
+          AND s.name = 'APROBADO'
+          AND h.current = TRUE
+    )
+    LOOP
+        DECLARE
+            v_existing_monthly_rate FLOAT;
+            v_existing_installment NUMERIC;
+        BEGIN
+            v_existing_monthly_rate := (v_loan_rec.annual_rate / 100) / 12;
+            
+            IF v_existing_monthly_rate > 0 THEN
+                v_existing_installment := v_loan_rec.amount * 
+                    (v_existing_monthly_rate * POWER(1 + v_existing_monthly_rate, v_loan_rec.term_months)) 
+                    / (POWER(1 + v_existing_monthly_rate, v_loan_rec.term_months) - 1);
+            ELSE
+                v_existing_installment := v_loan_rec.amount / v_loan_rec.term_months;
+            END IF;
+            
+            v_current_debt := v_current_debt + v_existing_installment;
+        END;
+    END LOOP;
+
+    -- 7. Calcular capacidad disponible
+    v_available_capacity := v_max_capacity - v_current_debt;
+
+    -- 8. LÓGICA DE DECISIÓN AUTOMÁTICA
+    
+    -- Prioridad 1: Si la cuota supera la capacidad disponible → RECHAZADO
+    IF v_monthly_installment > v_available_capacity THEN
         v_status_name := 'RECHAZADO';
         
-    -- Prioridad 2: Si tiene capacidad pero monto > 5 salarios, requiere revisión manual
+    -- Prioridad 2: Si tiene capacidad pero el monto supera 5 salarios → REVISIÓN MANUAL
     ELSIF p_amount > (v_base_salary * 5) THEN
         v_status_name := 'PENDIENTE_REVISION';
         
@@ -167,7 +234,7 @@ BEGIN
         v_status_name := 'APROBADO';
     END IF;
 
-    -- 5. Asignar el ID del estado al parámetro de salida
+    -- 9. Obtener el ID del estado correspondiente y asignarlo al parámetro de salida
     SELECT id INTO p_status_id
     FROM loan_request_statuses
     WHERE name = v_status_name;
@@ -175,5 +242,9 @@ BEGIN
     IF p_status_id IS NULL THEN
         RAISE EXCEPTION 'Estado % no encontrado en la tabla loan_request_statuses', v_status_name;
     END IF;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Error en sp_validate_loan_request: %', SQLERRM;
 END;
 $$;

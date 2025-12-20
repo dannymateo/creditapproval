@@ -25,7 +25,6 @@ public class LoanRequestJpaAdapter implements LoanRequestRepositoryPort {
     private final LoanRequestJpaRepository jpaRepository;
     private final LoanRequestStatusHistoryJpaRepository historyRepository;
     private final LoanRequestPersistenceMapper mapper;
-    private final LoanRequestValidationService validationService;
 
     @Override
     public LoanRequest save(LoanRequest loanRequest) {
@@ -90,6 +89,6 @@ public class LoanRequestJpaAdapter implements LoanRequestRepositoryPort {
 
     @Override
     public UUID callAutomaticValidationProcedure(UUID customerId, UUID loanTypeId, BigDecimal amount, Integer termMonths) {
-        return validationService.validateLoanRequest(customerId, loanTypeId, amount, termMonths);
+        return jpaRepository.callAutomaticValidationProcedure(customerId, loanTypeId, amount, termMonths);
     }
 }
