@@ -256,26 +256,27 @@ Crear archivo `.env` en la raíz:
 # --- SERVER CONFIGURATION ---
 APP_PORT=8080
 CLIENT_URL=http://localhost:3000
+CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3000
+CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS,PATCH
 
 # --- DATABASE CONFIGURATION ---
-DB_URL=jdbc:postgresql://host:port/database_name
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
+DB_NAME=creditapproval
+DB_USERNAME=postgres
+DB_PASSWORD=MiPasswordSuperSeguro123!
 
 # --- JPA / HIBERNATE ---
 SPRING_JPA_SHOW_SQL=false
 SPRING_JPA_DDL_AUTO=none
 
 # --- SECURITY JWT ---
-# Generar una cadena aleatoria segura para el secret
-JWT_SECRET=your_super_secret_safe_key
+JWT_SECRET=ab3c5d7e9f1a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c
 JWT_EXPIRATION_MS=86400000
 JWT_ACCESS_MINUTES=30
 JWT_REFRESH_DAYS=7
 
 # --- EMAIL CONFIGURATION ---
-MAIL_USERNAME=your_email@gmail.com
-MAIL_PASSWORD=your_app_password
+MAIL_USERNAME=dannymateoh1@gmail.com
+MAIL_PASSWORD= ####
 
 # --- OPENAI CONFIGURATION ---
 OPENAI_API_KEY=your_openai_api_key_here
@@ -286,7 +287,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 docker-compose up -d
 ```
 
-4. **Inicializar la base de datos**
+4. **Inicializar la base de datos (Esperar unos 10 segundos a que JPA con hibernate cree las tablas)**
 ```bash
 # Copiar script al contenedor
 docker cp scripts/init.sql creditapproval-db:/tmp/init.sql
