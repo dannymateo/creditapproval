@@ -66,9 +66,13 @@ public class IdentificationTypeApplicationService implements
     @Override
     @Transactional
     public void delete(UUID id) {
-        if (!repository.findById(id).isPresent()) {
-            throw new ResourceNotFoundException("Identification type not found");
+        repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Identification type not found"));
+
+        if (repository.isIdentificationTypeAssignedToCustomers(id)) {
+            throw new DatabaseConflictException("Cannot delete identification type. It is assigned to active customers.");
         }
+
         repository.deleteById(id);
     }
 

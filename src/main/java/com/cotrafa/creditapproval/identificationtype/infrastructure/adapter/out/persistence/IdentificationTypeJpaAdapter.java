@@ -81,6 +81,11 @@ public class IdentificationTypeJpaAdapter implements IdentificationTypeRepositor
     }
 
     @Override
+    public boolean isIdentificationTypeAssignedToCustomers(UUID identificationTypeId) {
+        return jpaRepository.isIdentificationTypeAssignedToCustomers(identificationTypeId);
+    }
+
+    @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
     }

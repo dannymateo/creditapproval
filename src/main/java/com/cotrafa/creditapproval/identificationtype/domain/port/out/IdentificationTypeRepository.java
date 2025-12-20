@@ -13,6 +13,7 @@ public interface IdentificationTypeRepository {
     Optional<IdentificationType> findById(UUID id);
     boolean existsByName(String name);
     void deleteById(UUID id);
+    boolean isIdentificationTypeAssignedToCustomers(UUID identificationTypeId);
     PaginatedResult<IdentificationType> findAll(PaginationCriteria criteria);
     List<IdentificationType> findAllActive();
 }
