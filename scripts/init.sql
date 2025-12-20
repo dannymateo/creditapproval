@@ -1,5 +1,5 @@
 -- 1. Limpieza de tablas
-TRUNCATE roles, users, system_entities, identification_types, loan_types, loan_request_statuses, customers CASCADE;
+--TRUNCATE roles, users, system_entities, identification_types, loan_types, loan_request_statuses, customers CASCADE;
 
 -- ============================================================
 -- ROLES BASE
