@@ -82,6 +82,11 @@ public class LoanTypeJpaAdapter implements LoanTypeRepository {
     }
 
     @Override
+    public boolean isLoanTypeAssignedToLoanRequests(UUID loanTypeId) {
+        return jpaRepository.isLoanTypeAssignedToLoanRequests(loanTypeId);
+    }
+
+    @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
     }

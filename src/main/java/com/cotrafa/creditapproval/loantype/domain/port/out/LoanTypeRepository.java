@@ -15,4 +15,5 @@ public interface LoanTypeRepository {
     List<LoanType> findAllActive();
     boolean existsByName(String name);
     void deleteById(UUID id);
+    boolean isLoanTypeAssignedToLoanRequests(UUID loanTypeId);
 }

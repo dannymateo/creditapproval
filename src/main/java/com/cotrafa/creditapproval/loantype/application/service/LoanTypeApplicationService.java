@@ -62,7 +62,13 @@ public class LoanTypeApplicationService implements
     @Override
     @Transactional
     public void delete(UUID id) {
-        if (repository.findById(id).isEmpty()) throw new ResourceNotFoundException("Loan type not found");
+        repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan type not found"));
+
+        if (repository.isLoanTypeAssignedToLoanRequests(id)) {
+            throw new DatabaseConflictException("Cannot delete loan type. It is assigned to active loan requests.");
+        }
+
         repository.deleteById(id);
     }
 
