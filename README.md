@@ -260,9 +260,16 @@ CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3000
 CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS,PATCH
 
 # --- DATABASE CONFIGURATION ---
+If run the service in dev use:
+DB_URL=jdbc:postgresql://localhost:5432/creditapproval
+DB_USERNAME=postgres
+DB_PASSWORD=MiPasswordSuperSeguro123
+ 
+ or
+ 
 DB_NAME=creditapproval
 DB_USERNAME=postgres
-DB_PASSWORD=MiPasswordSuperSeguro123!
+DB_PASSWORD=MiPasswordSuperSeguro123
 
 # --- JPA / HIBERNATE ---
 SPRING_JPA_SHOW_SQL=false
