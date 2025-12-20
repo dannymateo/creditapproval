@@ -1,20 +1,14 @@
--- ============================================================
--- DATABASE INITIALIZATION SCRIPT
--- Credit Approval System - COTRAFA
--- ============================================================
--- NOTE: Run this script MANUALLY after containers are up
--- OR wait for tables to be created by Hibernate first
--- ============================================================
+-- 1. Limpieza de tablas
+TRUNCATE roles, users, system_entities, identification_types, loan_types, loan_request_statuses, customers CASCADE;
 
 -- ============================================================
--- BASE ROLES
+-- ROLES BASE
 -- ============================================================
 INSERT INTO roles (id, created_at, updated_at, created_by, updated_by, name, active)
 VALUES
     ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', NOW(), NOW(), 'system', 'system', 'ADMIN', TRUE),
     ('b2c3d4e5-f6a7-4b6c-9d0e-1f2a3b4c5d6e', NOW(), NOW(), 'system', 'system', 'ANALYST', TRUE),
-    ('c3d4e5f6-a7b8-4c7d-0e1f-2a3b4c5d6e7f', NOW(), NOW(), 'system', 'system', 'CUSTOMER', TRUE)
-ON CONFLICT (id) DO NOTHING;
+    ('c3d4e5f6-a7b8-4c7d-0e1f-2a3b4c5d6e7f', NOW(), NOW(), 'system', 'system', 'CUSTOMER', TRUE);
 
 -- ============================================================
 -- USUARIOS
@@ -70,6 +64,7 @@ VALUES
     ('a1a1a1a1-1111-1111-1111-a1a1a1a1a1a1', NOW(), NOW(), 'system', 'system', 'ACTIVO'),
     ('c3c3c3c3-3333-3333-3333-c3c3c3c3c3c3', NOW(), NOW(), 'system', 'system', 'FINALIZADO');
 
+
 -- ============================================================
 -- CLIENTES DE PRUEBA
 -- ============================================================
@@ -99,7 +94,7 @@ VALUES
 -- PERMISOS
 -- ============================================================
 
--- 1. PERMISOS PARA ADMIN (Control Total)
+-- 1 PERMISOS PARA ADMIN (Control Total)
 INSERT INTO permissions (id, role_id, entity_id, can_create, can_read, can_update, can_delete)
 SELECT
     gen_random_uuid(),
@@ -108,7 +103,7 @@ SELECT
     TRUE, TRUE, TRUE, TRUE
 FROM system_entities e;
 
--- 2. PERMISOS PARA ANALYST (Gestión Operativa)
+-- 2 PERMISOS PARA ANALYST (Gestión Operativa)
 -- El analista puede leer todo, pero solo crear/editar Clientes y Solicitudes de Crédito.
 INSERT INTO permissions (id, role_id, entity_id, can_create, can_read, can_update, can_delete)
 SELECT
@@ -118,20 +113,17 @@ SELECT
     CASE
         WHEN e.name IN ('LOAN_REQUEST', 'CUSTOMER') THEN TRUE
         ELSE FALSE
-    END, -- can_create
+        END, -- can_create
     TRUE, -- can_read (Permiso para ver todos los módulos)
     CASE
         WHEN e.name IN ('LOAN_REQUEST', 'CUSTOMER', 'USER') THEN TRUE
         ELSE FALSE
-    END, -- can_update (Puede gestionar solicitudes y actualizar info de usuarios/clientes)
+        END, -- can_update (Puede gestionar solicitudes y actualizar info de usuarios/clientes)
     FALSE -- can_delete (Un analista nunca debería borrar registros)
 FROM system_entities e;
 
--- ============================================================
--- PROCEDIMIENTOS ALMACENADOS
--- ============================================================
 
--- Procedimiento para validar solicitudes de préstamo
+
 CREATE OR REPLACE PROCEDURE sp_validate_loan_request(
     IN p_customer_id UUID,
     IN p_loan_type_id UUID,
@@ -139,7 +131,7 @@ CREATE OR REPLACE PROCEDURE sp_validate_loan_request(
     IN p_term_months INTEGER,
     INOUT p_status_id UUID DEFAULT NULL
 )
-LANGUAGE plpgsql
+    LANGUAGE plpgsql
 AS $$
 DECLARE
     v_base_salary NUMERIC;
@@ -149,11 +141,9 @@ DECLARE
     v_indebtedness_capacity NUMERIC;
     v_status_name VARCHAR(50);
 BEGIN
-    -- 1. Obtener salario del cliente y tasa del préstamo
     SELECT base_salary INTO v_base_salary FROM customers WHERE id = p_customer_id;
     SELECT annual_rate INTO v_annual_rate FROM loan_types WHERE id = p_loan_type_id;
 
-    -- 2. Calcular cuota mensual (Sistema Francés)
     v_monthly_rate := (v_annual_rate / 100) / 12;
 
     IF v_monthly_rate > 0 THEN
@@ -162,19 +152,17 @@ BEGIN
         v_monthly_installment := p_amount / p_term_months;
     END IF;
 
-    -- 3. Capacidad disponible (Ejemplo: 40% del salario)
-    v_indebtedness_capacity := v_base_salary * 0.40;
+    v_indebtedness_capacity := v_base_salary * 0.35;
 
-    -- 4. Lógica de Negocio solicitada
-    -- RECHAZADO: Cuota mayor a capacidad
+    -- Prioridad 1: Validar capacidad de pago
     IF v_monthly_installment > v_indebtedness_capacity THEN
         v_status_name := 'RECHAZADO';
-
-    -- REVISIÓN MANUAL: Aprobado pero monto > 5 salarios
+        
+    -- Prioridad 2: Si tiene capacidad pero monto > 5 salarios, requiere revisión manual
     ELSIF p_amount > (v_base_salary * 5) THEN
         v_status_name := 'PENDIENTE_REVISION';
-
-    -- APROBADO: Cuota <= capacidad y monto <= 5 salarios
+        
+    -- Prioridad 3: Aprobación automática (tiene capacidad y monto razonable)
     ELSE
         v_status_name := 'APROBADO';
     END IF;
@@ -184,14 +172,8 @@ BEGIN
     FROM loan_request_statuses
     WHERE name = v_status_name;
 
-    -- Si no existe el estado en la tabla, lanzamos error para evitar inconsistencias
     IF p_status_id IS NULL THEN
         RAISE EXCEPTION 'Estado % no encontrado en la tabla loan_request_statuses', v_status_name;
     END IF;
 END;
 $$;
-
--- ============================================================
--- FIN DEL SCRIPT DE INICIALIZACIÓN
--- ============================================================
-
