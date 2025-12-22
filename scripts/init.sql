@@ -140,57 +140,50 @@ DECLARE
     v_indebtedness_capacity NUMERIC;
     v_status_name VARCHAR(50);
     v_automatic_validation BOOLEAN;
-    -- ID fijo para estado APROBADO según definición de base de datos
-    v_approved_status_id UUID := 'b2b2b2b2-2222-2222-2222-b2b2b2b2b2b2';
+    -- ID para el estado ACTIVO de un préstamo ya desembolsado
+    v_active_loan_status_id UUID := 'a1a1a1a1-1111-1111-1111-a1a1a1a1a1a1';
 BEGIN
+    -- 1. Obtener datos del cliente y tipo de crédito
     SELECT base_salary INTO v_base_salary FROM customers WHERE id = p_customer_id;
     SELECT annual_rate, automatic_validation INTO v_annual_rate, v_automatic_validation
     FROM loan_types WHERE id = p_loan_type_id;
 
-    -- Calcular cuota mensual de la nueva solicitud usando fórmula de amortización estándar
+    -- 2. Calcular cuota mensual con REDONDEO para evitar errores de precisión
     v_monthly_rate := (v_annual_rate / 100) / 12;
+
     IF v_monthly_rate > 0 THEN
-        v_new_installment := p_amount * (v_monthly_rate / (1 - POWER(1 + v_monthly_rate, -p_term_months)));
+        -- Aplicamos ROUND a 2 decimales para que coincida con el plan de pagos de Java/Email
+        v_new_installment := ROUND((p_amount * (v_monthly_rate / (1 - POWER(1 + v_monthly_rate, -p_term_months))))::numeric, 2);
     ELSE
-        v_new_installment := p_amount / p_term_months;
+        v_new_installment := ROUND((p_amount / p_term_months)::numeric, 2);
     END IF;
 
-    -- Calcular deuda mensual actual sumando cuotas de préstamos con estado APROBADO
+    -- 3. Calcular deuda actual redondeando cada cuota sumada
     SELECT COALESCE(SUM(
-                            CASE
-                                WHEN (lt.annual_rate / 100 / 12) > 0 THEN
-                                    lr.amount * ((lt.annual_rate / 100 / 12) / (1 - POWER(1 + (lt.annual_rate / 100 / 12), -lr.term_months)))
-                                ELSE
-                                    lr.amount / lr.term_months
-                                END
+                            ROUND((l.amount * (((l.annual_rate/100/12)) / (1 - POWER(1 + (l.annual_rate/100/12), -l.term_months))))::numeric, 2)
                     ), 0) INTO v_current_debt_installments_sum
-    FROM loan_requests lr
-             JOIN loan_requests_statuses_history lrh ON lr.id = lrh.loan_request_id
-             JOIN loan_types lt ON lr.loan_type_id = lt.id
-    WHERE lr.customer_id = p_customer_id
-      AND lrh.current = TRUE
-      AND lrh.loan_request_status_id = v_approved_status_id;
+    FROM loans l
+             JOIN loan_statuses_history lsh ON l.id = lsh.loan_id
+    WHERE l.customer_id = p_customer_id
+      AND lsh.current = TRUE
+      AND lsh.loan_status_id = v_active_loan_status_id;
 
-    -- Definir capacidad máxima permitida (35% de ingresos totales)
-    v_indebtedness_capacity := v_base_salary * 0.35;
+    -- 4. Capacidad máxima (35%) redondeada
+    v_indebtedness_capacity := ROUND((v_base_salary * 0.35)::numeric, 2);
 
-    -- REGLA: Rechazo si la cuota nueva + deuda actual superan la capacidad disponible
-    IF (v_new_installment + v_current_debt_installments_sum) > v_indebtedness_capacity THEN
+    -- 5. LÓGICA DE DECISIÓN (Con tolerancia de 1 unidad para evitar fallos por centavos)
+    -- Si la suma de cuotas supera la capacidad por más de 1 peso, se rechaza
+    IF (v_new_installment + v_current_debt_installments_sum) > (v_indebtedness_capacity + 1) THEN
         v_status_name := 'RECHAZADO';
-
-        -- REGLA: Si tiene capacidad pero el monto supera 5 salarios base, requiere revisión manual
     ELSIF p_amount > (v_base_salary * 5) THEN
         v_status_name := 'PENDIENTE_REVISION';
-
-        -- REGLA: Forzar revisión si el tipo de préstamo no permite validación automática
     ELSIF v_automatic_validation = FALSE THEN
         v_status_name := 'PENDIENTE_REVISION';
-
-        -- REGLA: Aprobación automática si cumple con capacidad y políticas de riesgo
     ELSE
         v_status_name := 'APROBADO';
     END IF;
 
+    -- 6. Obtener el ID del estado final
     SELECT id INTO p_status_id FROM loan_request_statuses WHERE name = v_status_name;
 
     IF p_status_id IS NULL THEN
@@ -198,3 +191,41 @@ BEGIN
     END IF;
 END;
 $$;
+
+
+
+--Buscar capacidades de credito disponibles por cada usuario
+SELECT
+    c.id AS cliente_id,
+    c.first_name || ' ' || c.last_name AS nombre_cliente,
+    c.base_salary AS salario_base,
+    -- Capacidad Máxima (35% del salario)
+    (c.base_salary * 0.35) AS capacidad_maxima_35,
+    -- Suma de cuotas de créditos
+    COALESCE(
+            (SELECT SUM(
+                            l.amount * (((l.annual_rate/100/12) * POWER(1 + (l.annual_rate/100/12), l.term_months)) /
+                                        (POWER(1 + (l.annual_rate/100/12), l.term_months) - 1))
+                    )
+             FROM loans l
+                      JOIN loan_statuses_history lsh ON l.id = lsh.loan_id
+                      JOIN loan_statuses ls ON lsh.loan_status_id = ls.id
+             WHERE l.customer_id = c.id
+               AND lsh.current = TRUE
+               AND ls.name = 'ACTIVO'
+            ), 0) AS deuda_mensual_actual,
+    -- Capacidad Disponible (Lo que le queda para nuevos créditos)
+    (c.base_salary * 0.35) - COALESCE(
+            (SELECT SUM(
+                            l.amount * (((l.annual_rate/100/12) * POWER(1 + (l.annual_rate/100/12), l.term_months)) /
+                                        (POWER(1 + (l.annual_rate/100/12), l.term_months) - 1))
+                    )
+             FROM loans l
+                      JOIN loan_statuses_history lsh ON l.id = lsh.loan_id
+                      JOIN loan_statuses ls ON lsh.loan_status_id = ls.id
+             WHERE l.customer_id = c.id
+               AND lsh.current = TRUE
+               AND ls.name = 'ACTIVO'
+            ), 0) AS capacidad_disponible
+FROM
+    customers c;
