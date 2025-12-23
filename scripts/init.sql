@@ -155,7 +155,7 @@ BEGIN
         -- Aplicamos ROUND a 2 decimales para que coincida con el plan de pagos de Java/Email
         v_new_installment := ROUND((p_amount * (v_monthly_rate / (1 - POWER(1 + v_monthly_rate, -p_term_months))))::numeric, 2);
     ELSE
-        v_new_installment := ROUND((p_amount / p_term_months)::numeric, 2);
+        RAISE EXCEPTION 'Regla de Negocio: La tasa de interés anual del producto debe ser mayor a 0. Tasa detectada: %', v_annual_rate;
     END IF;
 
     -- 3. Calcular deuda actual redondeando cada cuota sumada
